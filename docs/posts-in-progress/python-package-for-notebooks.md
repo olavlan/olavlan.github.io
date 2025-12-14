@@ -12,7 +12,7 @@ This could be exposed as a CLI interface, or a Python interface to be used direc
 === "bash"
 
     ```bash
-    my_org publish my_article.ipynb --publish-date 2026-01-01
+    my-org publish my_article.ipynb --publish-date 2026-01-01
     ```
 
 === "my_article.ipynb"
@@ -60,7 +60,7 @@ This is an example of one content item (the article) which contains (a reference
 Now, what happens if we use our command-line interface?
 
 ```bash
-my_org publish my_article.ipynb --publish-date 2026-01-01
+my-org publish my_article.ipynb --publish-date 2026-01-01
 ```
 
 Let's assume that most of the processing happens on the client sids. While parsing the notebook file, it will have to discover all of the organization-specific components.
@@ -69,6 +69,21 @@ There is one option we can quickly discard; executing code cells as we parse the
 First of all, running notebooks as scripts is a complicated problem (one which marimo tries to solve) that we shouldn't embark on ourselves.
 More generally, we don't want to run arbitrary code in the background; it should be the user who explicitly decides when to run their code.
 If we can't run the code cells, we have to use the output of the code cells.
+In IPython Notebooks (ipynb files), the [output of an object](https://ipython.readthedocs.io/en/stable/config/integrating.html) can be defined as follows:
 
 ```python
+@dataclass
+class Diagram:
+    data: dict[str, str]
+
+    def _repr_html_(self):
+        # make api call here
+        return "<p>HTML from API call.<p>"
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return {"application/vnd.myorg.diagram+json": self.data}
 ```
+
+Now assume we run the following code cell:
+
+Then only the html will be rendered to the user, but the raw ipynb file will have the following content: 
