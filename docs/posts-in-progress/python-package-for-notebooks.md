@@ -64,14 +64,10 @@ my-org publish my_article.ipynb --publish-date 2026-01-01
 ```
 
 Let's assume that most of the processing happens on the client sids. While parsing the notebook file, it will have to discover all of the organization-specific components.
-There are several ways to go about this.
-There is one option we can quickly discard; executing code cells as we parse the file.
-First of all, running notebooks as scripts is a complicated problem (one which marimo tries to solve) that we shouldn't embark on ourselves.
-More generally, we don't want to run arbitrary code in the background; it should be the user who explicitly decides when to run their code.
-If we can't run the code cells, we have to use the output of the code cells.
+There are several ways to go about this, but one thing we know is that we need access to the output of the code cells.
 In IPython Notebooks (ipynb files), the [output of an object](https://ipython.readthedocs.io/en/stable/config/integrating.html) can be defined as follows:
 
-```python
+```python title="my_org.py"
 @dataclass
 class Diagram:
     data: dict[str, str]
@@ -86,7 +82,8 @@ class Diagram:
 
 Now assume we run the following code cell in an ipynb notebook:
 
-```py
+```py title="my_article.ipynb"
+from my_org import Diagram
 data = {"my_key": "my_value"}
 diagram = Diagram(data)
 diagram
@@ -118,27 +115,115 @@ IPython notebook thus allows us to store arbitrary data in the output of code ce
 In this case we store data under a custom [media type](https://en.wikipedia.org/wiki/Media_type) (`application/vnd.myorg.diagram+json`), allowing our parser to discover the organization-specific components.
 
 Now our parser has all it needs to process the notebook and send structured data to the server.
+Note that with our publish command we can run all the code cells programmatically to ensure the output is available.
+However, this is not a good idea, since IPython notebooks doesn't have an unambiguous order of execution - it's up to the user.
 
-However, this solution is very specific to IPython notebooks, and is not easily extensible to marimo notebooks, for instance.
-Indeed, marimo notebooks are just python files that don't contain any output of code cells.
+## What about marimo?
+
+We now have a solution that is specific to IPython notebooks, and is not easily extensible to, say, marimo notebooks.
+Marimo notebooks are just python files that don't contain any output of code cells.
 For instance, if we create a marimo notebook with the same code cell as above, the raw notebook file will be:
 
-```py
+```py title="my_article.py"
 import marimo
 
 __generated_with = "0.18.4"
 app = marimo.App()
 
+
 @app.cell
-def _(Diagram):
+def _():
+    from my_org import Diagram
     data = {"my_key": "my_value"}
     diagram = Diagram(data)
     diagram
     return
 
+
+if __name__ == "__main__":
+    app.run()
+
+```
+
+No output is ever stored in this file - the output only exists in memory and is meant to be processed by the marimo UI layer.
+This backs Marimo's philosophy that it should not be necessary to store outputs in files, since the output should be completely deterministic and reproducible.
+To achieve this, every cell is just a Python function, and Marimo ensures that the functions are run in the correct order based on their dependencies.
+In comparison, IPython notebooks are not reproducible in the same way, since the format doesn't  enforce a "right order" of cells - only the creator of the notebook knows what the right execution order of the cell is.
+
+Although we can run a Marimo notebook as a Python script and inspect the objects, we don't have a good way of parsing the output.
+In particular, markdown cells in Marimo are also just code cells with markdown output, as seen in this example file:
+
+```python
+import marimo
+
+__generated_with = "0.18.4"
+app = marimo.App()
+
+
+@app.cell
+def _():
+    import marimo as mo
+    return (mo,)
+
+
+@app.cell
+def _(mo):
+    mo.md("""
+    # This is a markdown heading in a Marimo cell
+    """)
+    return
+
+
 if __name__ == "__main__":
     app.run()
 ```
 
-This is a feature, not a bug, since marimo's philosophy is that output of notebooks should be completely deterministic, meaning it can be reproduced by re-running all the cells in the right order.
-IPython notebooks are not reproducible in the same way, as there is no right order!
+This also shows how marimo handles dependencies between cells.
+Marimo makes it easy to importing and running a whole notebook; we simply import the `marimo.App` object from the python file and call the [run](https://docs.marimo.io/api/app/#marimo.App.run) method.
+The return values include the outputs and definitions of the cell. However, Marimo-specific outputs, like the output from cells calling `mo.md()`, does not have a public API that we can use (they are internal objects meant to be rendered by Marimo's own UI layer).
+
+In order to get access to the markdown content, we need to use one of marimo's [export](https://docs.marimo.io/cli/#marimo-export) commands and work from there.
+In our case, we want an IPython notebook, since it is the only notebook format that can store output.
+Although the subcommand `marimo export ipynb` command has an `--include-outputs` options, this only gives us the output that is shown to the user.
+Hence we need to convert it to an ipynb notebook without outputs, and then execute the notebook.
+Here is how we can do that:
+
+```python
+from nbclient import NotebookClient
+import nbformat
+import subprocess
+
+result = subprocess.run(
+    ["marimo", "export", "ipynb", "my_notebook.py"],
+    capture_output=True,
+    text=True,
+)
+
+notebook = nbformat.reads(result.stdout, as_version=4)
+
+client = NotebookClient(notebook)
+client.execute()
+```
+
+Note that in this case, we can actually be sure that the notebook is executed correctly, since marimo will export the cells in the right execution order.
+
+## The percent format
+
+Python files written in the percent format can similarly be converted to ipynb files:
+
+What about execution order?
+
+## Putting it together
+
+Now let's go back to our original goals:
+
+* The user can create an organization-specific component in a cell and show a HTML preview in the cell output.
+* The notebook file can be parsed in such a way that the components are discovered and sent to the server in the right format.
+
+Show a parser class that handles different notebook types and parses into an object where the article body is a list of cells, which is either a markdown string or a json.
+
+## Content references
+
+## Conclusion
+
+ipynb has a reproducibility problem, but its ability to store the output state as structured data makes it particularly useful as a compatibility format.

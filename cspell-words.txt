@@ -4,3 +4,5 @@ marimo
 marimo's
 mimebundle
 myorg
+nbclient
+nbformat
