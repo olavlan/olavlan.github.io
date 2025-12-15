@@ -1,0 +1,9 @@
+{
+    "cSpell.language": "en,nb,es",
+    "markdownlint.configFile": ".markdownlint.yml",
+    "markdownlint.run": "onSave",
+    "notebook.formatOnSave.enabled": true,
+    "cSpell.import": [
+        "cspell.config.yaml"
+    ],
+}

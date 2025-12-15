@@ -1,0 +1,6 @@
+dataclass
+ipynb
+marimo
+marimo's
+mimebundle
+myorg

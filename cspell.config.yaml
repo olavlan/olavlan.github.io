@@ -1,0 +1,10 @@
+version: "0.2"
+ignorePaths: []
+dictionaryDefinitions:
+  - name: cspell-words
+    addWords: true
+    scope:
+      - workspace
+    path: ./cspell-words.txt
+dictionaries:
+  - cspell-words

@@ -84,6 +84,61 @@ class Diagram:
         return {"application/vnd.myorg.diagram+json": self.data}
 ```
 
-Now assume we run the following code cell:
+Now assume we run the following code cell in an ipynb notebook:
 
-Then only the html will be rendered to the user, but the raw ipynb file will have the following content: 
+```py
+data = {"my_key": "my_value"}
+diagram = Diagram(data)
+diagram
+```
+
+Then only the html will be rendered to the user, but the raw ipynb file will have the following content:
+
+```json
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "6d01f537",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "application/vnd.myorg.diagram+json": {
+       "my_key": "my_value"
+      },
+      "text/html": [
+       "<p>HTML from API call.<p>"
+      ], 
+//notebook continues here
+```
+
+IPython notebook thus allows us to store arbitrary data in the output of code cells.
+In this case we store data under a custom [media type](https://en.wikipedia.org/wiki/Media_type) (`application/vnd.myorg.diagram+json`), allowing our parser to discover the organization-specific components.
+
+Now our parser has all it needs to process the notebook and send structured data to the server.
+
+However, this solution is very specific to IPython notebooks, and is not easily extensible to marimo notebooks, for instance.
+Indeed, marimo notebooks are just python files that don't contain any output of code cells.
+For instance, if we create a marimo notebook with the same code cell as above, the raw notebook file will be:
+
+```py
+import marimo
+
+__generated_with = "0.18.4"
+app = marimo.App()
+
+@app.cell
+def _(Diagram):
+    data = {"my_key": "my_value"}
+    diagram = Diagram(data)
+    diagram
+    return
+
+if __name__ == "__main__":
+    app.run()
+```
+
+This is a feature, not a bug, since marimo's philosophy is that output of notebooks should be completely deterministic, meaning it can be reproduced by re-running all the cells in the right order.
+IPython notebooks are not reproducible in the same way, as there is no right order!

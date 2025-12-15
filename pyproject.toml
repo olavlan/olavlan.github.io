@@ -1,7 +1,7 @@
 [project]
 name = "site"
 version = "0.1.0"
-description = "Add your description here"
+description = "My personal website, built with zensical"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = ["zensical>=0.0.11"]
