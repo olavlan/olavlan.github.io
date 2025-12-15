@@ -118,7 +118,7 @@ Now our parser has all it needs to process the notebook and send structured data
 Note that with our publish command we can run all the code cells programmatically to ensure the output is available.
 However, this is not a good idea, since IPython notebooks doesn't have an unambiguous order of execution - it's up to the user.
 
-## What about marimo?
+## Marimo
 
 We now have a solution that is specific to IPython notebooks, and is not easily extensible to, say, marimo notebooks.
 Marimo notebooks are just python files that don't contain any output of code cells.
@@ -209,9 +209,13 @@ Note that in this case, we can actually be sure that the notebook is executed co
 
 ## The percent format
 
-Python files written in the percent format can similarly be converted to ipynb files:
-
+Can percent format files be converted to ipynb notebooks?
+Can it then be executed?
 What about execution order?
+
+## The Quarto Markdown format
+
+Same questions as above.
 
 ## Putting it together
 
@@ -220,10 +224,22 @@ Now let's go back to our original goals:
 * The user can create an organization-specific component in a cell and show a HTML preview in the cell output.
 * The notebook file can be parsed in such a way that the components are discovered and sent to the server in the right format.
 
-Show a parser class that handles different notebook types and parses into an object where the article body is a list of cells, which is either a markdown string or a json.
+What is the simplest way to achieve this across all popular notebook formats?
 
-## Content references
+## Server-specific considerations
+
+How can we register article metadata to be sent to the server? YAML frontmatter?
+
+How to have content references to already created content on the server?
+One metadata file to each article file?
+How can we get the filepath when we're inside a notebook? Do we need to handle specific environments differently (marimo, jupyter)?
+
+## User interface
+
+How can we make it simple for the user to start writing an article?
+Template creation? Which formats to support?
+ipynb, marimo, percent format, qmd?
 
 ## Conclusion
 
-ipynb has a reproducibility problem, but its ability to store the output state as structured data makes it particularly useful as a compatibility format.
+While ipynb has a reproducibility problem, its structured data format and ability to store outputs makes it well as a compatibility layer between other notebook formats and the server.
