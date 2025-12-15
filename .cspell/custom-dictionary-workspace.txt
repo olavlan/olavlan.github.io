@@ -1,7 +1,0 @@
-# Custom Dictionary Words
-dataclass
-ipynb
-marimo
-marimo's
-mimebundle
-myorg
