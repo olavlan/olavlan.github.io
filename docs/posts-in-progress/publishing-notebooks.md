@@ -1,4 +1,4 @@
-# Making a Python package for notebooks
+# Publishing notebooks with custom components
 
 ## Motivation
 
