@@ -12,6 +12,7 @@ Copyright &copy; 2025 The authors
 [project.theme]
 variant = "classic"
 language = "en"
+custom_dir = "overrides"
 features = [
     "announce.dismiss",
     "content.code.annotate",
