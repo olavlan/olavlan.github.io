@@ -5,7 +5,7 @@
 Notebooks have become immensely popular, especially in the data science world.
 Keeping everything in one self-contained file - data processing, documentation, presentation - is indeed convenient.
 With the rapid development of new technologies around notebooks, keeping all work in a notebook is not a restriction, but possibilities.
-Organizations that embraces the use of notebooks must ensure specific possibilities within the organization.
+Organizations that embrace the use of notebooks must ensure specific possibilities within the organization.
 For instance, if I work at an organization that publish data science-heavy article, I want the possibility to publish a notebook directly, without having to think too much about the specific formatting of the article.
 This could be exposed as a CLI interface, or a Python interface to be used directly in the notebook:
 
@@ -32,9 +32,8 @@ Regardless of the interface, the publish command/function probably needs to send
 
 ## Data formats
 
-Organizations that publish content usually stores it in specific data formats on the server.
-Which allows appropriate rendering of the specific components.
-So the first question is; should we send the raw notebook content to the server, process it there and store it in desirable format?
+Organizations that publish content usually store it in specific data formats on the server, which allows appropriate rendering of the components.
+So the first question is: should we send the raw notebook content to the server, process it there, and store it in a desirable format?
 This has the advantage that if we change the data formats on the server, we can update the notebook processor accordingly, and we don't have to maintain an API contract between the client and server.
 However it is much less flexible, as the next example will show:
 
@@ -51,7 +50,7 @@ diagram.preview()
 With the preview-function, we probably only want to send the data needed for the server to render our diagram.
 Then it can send back either html or a preview url - in either case it can be displayed in the notebook as an iframe.
 Hence it is much more flexible to do most of the processing on the client side, and send the data on a format that is equal or close to the format that the server expects.
-It makes sense to have clear restrictions on what can be sent to the server, as we safeguard against unexpected before sending data.
+It makes sense to have clear restrictions on what can be sent to the server, to safeguard against unexpected content before sending data.
 
 ## Nested data
 
@@ -116,12 +115,12 @@ In this case we store data under a custom [media type](https://en.wikipedia.org/
 
 Now our parser has all it needs to process the notebook and send structured data to the server.
 Note that with our publish command we can run all the code cells programmatically to ensure the output is available.
-However, this is not a good idea, since IPython notebooks doesn't have an unambiguous order of execution - it's up to the user.
+However, this is not a good idea, since IPython notebooks don't have an unambiguous order of execution — it's up to the user.
 
 ## Marimo
 
 We now have a solution that is specific to IPython notebooks, and is not easily extensible to, say, marimo notebooks.
-Marimo notebooks are just python files that don't contain any output of code cells.
+Marimo notebooks are just Python files that don't contain any output of code cells.
 For instance, if we create a marimo notebook with the same code cell as above, the raw notebook file will be:
 
 ```py title="my_article.py"
@@ -184,7 +183,7 @@ The return values include the outputs and definitions of the cell. However, Mari
 
 In order to get access to the markdown content, we need to use one of marimo's [export](https://docs.marimo.io/cli/#marimo-export) commands and work from there.
 In our case, we want an IPython notebook, since it is the only notebook format that can store output.
-Although the subcommand `marimo export ipynb` command has an `--include-outputs` options, this only gives us the output that is shown to the user.
+Although the subcommand `marimo export ipynb` command has an `--include-outputs` option; this only gives the output that is shown to the user.
 Hence we need to convert it to an ipynb notebook without outputs, and then execute the notebook.
 Here is how we can do that:
 
@@ -242,4 +241,4 @@ ipynb, marimo, percent format, qmd?
 
 ## Conclusion
 
-While ipynb has a reproducibility problem, its structured data format and ability to store outputs makes it well as a compatibility layer between other notebook formats and the server.
+While ipynb has reproducibility challenges, its structured data format and ability to store outputs make it well suited as a compatibility layer between other notebook formats and the server.
