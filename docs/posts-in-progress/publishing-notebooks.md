@@ -3,11 +3,11 @@
 ## Motivation
 
 Notebooks have become immensely popular, especially in the data science world.
-Keeping everything in one self-contained file - data processing, documentation, presentation - is indeed convenient.
-With the rapid development of new technologies around notebooks, keeping all work in a notebook is not a restriction, but possibilities.
-Organizations that embrace the use of notebooks must ensure specific possibilities within the organization.
-For instance, if I work at an organization that publish data science-heavy article, I want the possibility to publish a notebook directly, without having to think too much about the specific formatting of the article.
-This could be exposed as a CLI interface, or a Python interface to be used directly in the notebook:
+Keeping everything in one self-contained file — data processing, documentation, presentation — is indeed convenient.
+With the rapid development of new technologies around notebooks, keeping all work in a notebook is not a restriction, but a set of possibilities.
+Organizations that embrace the use of notebooks must provide specific capabilities within the organization.
+For instance, if I work at an organization that publishes data-science–heavy articles, I want the ability to publish a notebook directly, without having to think too much about the specific formatting of the article.
+This could be exposed as a CLI or a Python interface to be used directly in the notebook:
 
 === "bash"
 
@@ -26,7 +26,7 @@ This could be exposed as a CLI interface, or a Python interface to be used direc
     # end of notebook
     ```
 
-The Python interface could be convenient if you want the notebook to be completely self-contained; i.e. when all the cells of the notebook are run, the updated content is sent to the server, including all necessary metadata.
+The Python interface could be convenient if you want the notebook to be completely self-contained; i.e., when all the cells of the notebook are run, the updated content is sent to the server, including all necessary metadata.
 
 Regardless of the interface, the publish command/function probably needs to send both data and authentication headers, but in this post I will focus on the data.
 
@@ -35,7 +35,7 @@ Regardless of the interface, the publish command/function probably needs to send
 Organizations that publish content usually store it in specific data formats on the server, which allows appropriate rendering of the components.
 So the first question is: should we send the raw notebook content to the server, process it there, and store it in a desirable format?
 This has the advantage that if we change the data formats on the server, we can update the notebook processor accordingly, and we don't have to maintain an API contract between the client and server.
-However it is much less flexible, as the next example will show:
+However, it is much less flexible, as the next example will show:
 
 ```python title="my_article.ipynb"
 import pandas as pd
@@ -47,9 +47,9 @@ diagram = Diagram(df)
 diagram.preview()
 ```
 
-With the preview-function, we probably only want to send the data needed for the server to render our diagram.
-Then it can send back either html or a preview url - in either case it can be displayed in the notebook as an iframe.
-Hence it is much more flexible to do most of the processing on the client side, and send the data on a format that is equal or close to the format that the server expects.
+With the preview function, we probably only want to send the data needed for the server to render our diagram.
+Then it can send back either HTML or a preview URL — in either case it can be displayed in the notebook as an iframe.
+Hence it is much more flexible to do most of the processing on the client side, and send the data in a format that is equal to or close to what the server expects.
 It makes sense to have clear restrictions on what can be sent to the server, to safeguard against unexpected content before sending data.
 
 ## Nested data
@@ -62,7 +62,7 @@ Now, what happens if we use our command-line interface?
 my-org publish my_article.ipynb --publish-date 2026-01-01
 ```
 
-Let's assume that most of the processing happens on the client sids. While parsing the notebook file, it will have to discover all of the organization-specific components.
+Let's assume that most of the processing happens on the client side. While parsing the notebook file, it will have to discover all of the organization-specific components.
 There are several ways to go about this, but one thing we know is that we need access to the output of the code cells.
 In IPython Notebooks (ipynb files), the [output of an object](https://ipython.readthedocs.io/en/stable/config/integrating.html) can be defined as follows:
 
@@ -110,18 +110,18 @@ Then only the html will be rendered to the user, but the raw ipynb file will hav
 //notebook continues here
 ```
 
-IPython notebook thus allows us to store arbitrary data in the output of code cells.
+IPython notebooks thus allow us to store arbitrary data in the output of code cells.
 In this case we store data under a custom [media type](https://en.wikipedia.org/wiki/Media_type) (`application/vnd.myorg.diagram+json`), allowing our parser to discover the organization-specific components.
 
 Now our parser has all it needs to process the notebook and send structured data to the server.
 Note that with our publish command we can run all the code cells programmatically to ensure the output is available.
-However, this is not a good idea, since IPython notebooks don't have an unambiguous order of execution — it's up to the user.
+However, this is not always a good idea, since IPython notebooks don't have an unambiguous execution order — it's up to the user.
 
 ## Marimo
 
-We now have a solution that is specific to IPython notebooks, and is not easily extensible to, say, marimo notebooks.
+We now have a solution that is specific to IPython notebooks, and is not easily extensible to, say, Marimo notebooks.
 Marimo notebooks are just Python files that don't contain any output of code cells.
-For instance, if we create a marimo notebook with the same code cell as above, the raw notebook file will be:
+For instance, if we create a Marimo notebook with the same code cell as above, the raw notebook file will be:
 
 ```py title="my_article.py"
 import marimo
@@ -144,10 +144,10 @@ if __name__ == "__main__":
 
 ```
 
-No output is ever stored in this file - the output only exists in memory and is meant to be processed by the marimo UI layer.
+No output is ever stored in this file — the output only exists in memory and is meant to be processed by the Marimo UI layer.
 This backs Marimo's philosophy that it should not be necessary to store outputs in files, since the output should be completely deterministic and reproducible.
 To achieve this, every cell is just a Python function, and Marimo ensures that the functions are run in the correct order based on their dependencies.
-In comparison, IPython notebooks are not reproducible in the same way, since the format doesn't  enforce a "right order" of cells - only the creator of the notebook knows what the right execution order of the cell is.
+In comparison, IPython notebooks are not reproducible in the same way, since the format doesn't enforce a "right order" of cells — only the creator of the notebook knows what the right execution order of the cells is.
 
 Although we can run a Marimo notebook as a Python script and inspect the objects, we don't have a good way of parsing the output.
 In particular, markdown cells in Marimo are also just code cells with markdown output, as seen in this example file:
@@ -177,13 +177,13 @@ if __name__ == "__main__":
     app.run()
 ```
 
-This also shows how marimo handles dependencies between cells.
-Marimo makes it easy to importing and running a whole notebook; we simply import the `marimo.App` object from the python file and call the [run](https://docs.marimo.io/api/app/#marimo.App.run) method.
-The return values include the outputs and definitions of the cell. However, Marimo-specific outputs, like the output from cells calling `mo.md()`, does not have a public API that we can use (they are internal objects meant to be rendered by Marimo's own UI layer).
+This also shows how Marimo handles dependencies between cells.
+Marimo makes it easy to import and run a whole notebook; we simply import the `marimo.App` object from the Python file and call the [run](https://docs.marimo.io/api/app/#marimo.App.run) method.
+The return values include the outputs and definitions of the cell. However, Marimo-specific outputs, like the output from cells calling `mo.md()`, do not have a public API that we can use (they are internal objects meant to be rendered by Marimo's own UI layer).
 
-In order to get access to the markdown content, we need to use one of marimo's [export](https://docs.marimo.io/cli/#marimo-export) commands and work from there.
+In order to get access to the markdown content, we need to use one of Marimo's [export](https://docs.marimo.io/cli/#marimo-export) commands and work from there.
 In our case, we want an IPython notebook, since it is the only notebook format that can store output.
-Although the subcommand `marimo export ipynb` command has an `--include-outputs` option; this only gives the output that is shown to the user.
+Although the subcommand `marimo export ipynb` has an `--include-outputs` option, this only gives the output that is shown to the user.
 Hence we need to convert it to an ipynb notebook without outputs, and then execute the notebook.
 Here is how we can do that:
 
@@ -204,7 +204,7 @@ client = NotebookClient(notebook)
 client.execute()
 ```
 
-Note that in this case, we can actually be sure that the notebook is executed correctly, since marimo will export the cells in the right execution order.
+Note that in this case, we can actually be sure that the notebook is executed correctly, since Marimo will export the cells in the right execution order.
 
 ## The percent format
 
@@ -231,13 +231,13 @@ How can we register article metadata to be sent to the server? YAML frontmatter?
 
 How to have content references to already created content on the server?
 One metadata file to each article file?
-How can we get the filepath when we're inside a notebook? Do we need to handle specific environments differently (marimo, jupyter)?
+How can we get the filepath when we're inside a notebook? Do we need to handle specific environments differently (Marimo, Jupyter)?
 
 ## User interface
 
 How can we make it simple for the user to start writing an article?
 Template creation? Which formats to support?
-ipynb, marimo, percent format, qmd?
+ipynb, Marimo, percent format, qmd?
 
 ## Conclusion
 

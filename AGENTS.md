@@ -2,12 +2,7 @@
 applyTo: "docs/**/*.md"
 ---
 
-# Guidelines to help improve writing
+# Guidelines to improve writing
 
-## General guidelines
-
-- Only suggest changes, don't do rewrites.
-- Be conservative - suggest small language improvements without changing the content.
-- Suggest corrections to grammar and vocabulary
-- Suggest improvements in text fluency
-- Suggest making sentences more concise
+- Only correct grammar mistakes and choice of words. Do not change content, structure or wording.
+- Without making any changes, point out information that might be wrong or inaccurate in the text.
