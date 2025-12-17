@@ -1,3 +1,7 @@
+---
+icon: lucide/notebook
+---
+
 # Publishing notebooks with custom components
 
 ## Motivation

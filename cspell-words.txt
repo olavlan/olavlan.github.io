@@ -6,3 +6,4 @@ mimebundle
 myorg
 nbclient
 nbformat
+zensical

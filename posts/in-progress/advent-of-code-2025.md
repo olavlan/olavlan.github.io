@@ -1,3 +1,7 @@
+---
+icon: lucide/puzzle
+---
+
 # My experience with Advent of Code 2025
 
 This year was my first time doing Advent of Code. I have learnt a lot and will write about the experience here.

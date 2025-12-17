@@ -1,4 +1,5 @@
 [project]
+docs_dir = "posts"
 site_name = "olavlan"
 site_description = "Writing about my journey to learn programming and other things."
 site_author = "Olav Landsverk"
@@ -10,7 +11,7 @@ Copyright &copy; 2025 The authors
 #extra_css = ["stylesheets/extra.css"]
 
 [project.theme]
-variant = "classic"
+variant = "modern"
 language = "en"
 custom_dir = "overrides"
 features = [
@@ -31,6 +32,10 @@ features = [
     "navigation.tracking",
     "search.highlight",
 ]
+
+[project.theme.icon]
+logo = "lucide/cat"
+
 
 # - https://zensical.org/docs/setup/colors/
 [[project.theme.palette]]
