@@ -23,7 +23,7 @@ In the first iteration, the publish command needs too:
 - Prepare request data and authentication headers.
 - Send the request to the server, and optionally process the response to give user feedback.
 
-## Data formats
+## What to send?
 
 Organizations that publish content usually store it in specific data formats on the server, which allows appropriate rendering of the components.
 So the first question is: should we send the raw notebook content to the server, process it there, and store it in a desirable format?
@@ -45,19 +45,18 @@ Then it can send back either HTML or a preview URL — in either case it can be 
 Hence it is much more flexible to do most of the processing on the client side, and send the data in a format that is equal to or close to what the server expects.
 It makes sense to have clear restrictions on what can be sent to the server, to safeguard against unexpected content before sending data.
 
-## Nested data
+## Dynamic components
 
-In the previous example we wanted to publish a notebook, and we created an organization-specific diagram in the notebook.
-This is an example of one content item (the article) which contains (a reference to) another content item.
-Now, what happens if we use our command-line interface?
+In the previous example we wanted to publish a notebook which contains an organization-specific component (a diagram).
+This is an example of a dynamic, code-generated component, which is created on the server when the code cell is executed.
+But what happens when we publish the whole article with our command?
 
 ```bash
 my-org publish my_article.ipynb --publish-date 2026-01-01
 ```
 
-Let's assume that most of the processing happens on the client side.
-While parsing the notebook file, it will have to discover all of the organization-specific components.
-There are several ways to go about this, but one thing we know is that we need access to the output of the code cells.
+While parsing the notebook file, we will have to discover all of the organization-specific components in some way.
+There are several ways to go about this, but one thing is for sure: we are going to have to parse the output of code cells, not the code cells themselves (footnote here to explain why this is not reliables).
 In IPython Notebooks (ipynb files), the [output of an object](https://ipython.readthedocs.io/en/stable/config/integrating.html) comes from class methods like these:
 
 ```python title="my_org.py"
@@ -123,9 +122,9 @@ Ideally, if two users send the same notebook (in the sense that they have the sa
 However, this is not possible with IPython notebooks, since the outputs depend on the execution order, which again, is only known to the user.
 The alternative notebook system Marimo addresses these problems.
 
-## Marimo
+### Flat notebook formats
 
-How do we make our publish command work with marimo notebooks as well?
+**Marimo.** How do we make our publish command work with marimo notebooks as well?
 We first need to know that Marimo notebooks are just Python files that don't contain any output of code cells.
 For instance, if we create a Marimo notebook with the same code cell as above, the raw notebook file will be:
 
@@ -229,18 +228,9 @@ print(notebook)
 
 Note that in this case, we can actually be sure that the notebook is executed correctly, since Marimo will export the cells in the right execution order.
 
-## The percent format
+**The percent format and quarto markdown.**
 
-How is output stored?
-Can percent format files be converted to ipynb notebooks?
-Can it then be executed?
-What about execution order?
-
-## The Quarto Markdown format
-
-Same questions as above.
-
-## Putting it together
+These can also be converted to ipynb and the order of execution is presuambly always top-to-bottom?
 
 Now let's go back to our original goals:
 
@@ -249,9 +239,19 @@ Now let's go back to our original goals:
 
 What is the simplest way to achieve this across all popular notebook formats?
 Note that the different formats can be divided into flat file formats (marimo, percent, qmd) and structured data format (ipynb).
-Flat file formats are preferred by many because it is suitable for version control,
+Flat file formats are preferred by many because it is suitable for version control.
 However, in order to achieve our goals, we need a file format that can store outputs as structured data.
 Therefore, regardless of which notebook format we start with, ipynb has to be an intermediate format in our implementation.
+
+## Static components
+
+How to define static components using markdown?
+While there is no convenient way of using the base CommonMark format, most Markdown extensions agree on how special blocks should be defined, and we can use the Pandoc Markdown definition of [divs and spans](https://pandoc.org/demo/example33/8.18-divs-and-spans.html) as a reference.
+Quarto follows this exact definition.
+
+We can parse these as [containers](https://mdit-py-plugins.readthedocs.io/en/latest/#containers) with [attributes](https://mdit-py-plugins.readthedocs.io/en/latest/#attributes) or text spans with attributes.
+
+We can create our own [renderer](https://markdown-it-py.readthedocs.io/en/latest/using.html#renderers)to render these in the appropriate way for our server.
 
 ## Server-specific considerations
 
