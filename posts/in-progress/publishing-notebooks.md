@@ -253,6 +253,9 @@ We can parse these as [containers](https://mdit-py-plugins.readthedocs.io/en/lat
 
 We can create our own [renderer](https://markdown-it-py.readthedocs.io/en/latest/using.html#renderers)to render these in the appropriate way for our server.
 
+We can now go back to our dynamic components and see that we might want to have a markdown representation of the dynamic output as well.
+This will allow for dynamic components that have been created on the server to be inserted statically using a markdown-native syntax.
+
 ## Server-specific considerations
 
 How can we register article metadata to be sent to the server? YAML frontmatter?
