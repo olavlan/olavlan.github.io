@@ -1,8 +1,6 @@
 # Documents with custom components
 
-Premises:
-* We have a Pydantic schema for a custom component of a technical document.
-* We have one or more specifications for how to define the component in various document formats.
-* Given a document with a component, we can convert into pandoc AST and parse the component into its Pydantic model.
+* How can the Pydantic model contain everything we need to automatically generate documentation/templates/examples of how to define the different components, for instance in Markdown? 
+* How can we allow programmatic creation of components by setting fields one-by-one, i.e. delaying validation?
+* How can we have custom serialization, i.e. mapping for instance a string field into a dict?
 
-Question: How can documentation/templates/examples be dynamically created from the model, such that a change in the model would automatically be documented?
