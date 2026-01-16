@@ -77,10 +77,10 @@ Sync document
 Sync components
 
 1. Get the document publish path from the storage. If not set, raise an error.
-2. Extract all the component from the document.
+2. Extract all the components from the document, i.e. their key and html.
 3. For each component, do:
      1. Get the component data from storage.
-     2. Parse the component into a content.
+     2. Parse the component data and html into a content.
      3. Set the content's id to the value from storage.
      4. Sync the content with the publish client. Throw error if not working.
      5. Set the storage's id to the value from the response.
