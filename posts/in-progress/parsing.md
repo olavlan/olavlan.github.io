@@ -4,9 +4,10 @@
 
 - We want to publish Quarto Markdown files (qmd).
 - The qmd files should be parsed into structured data and sent to a publishing service.
-- The first step is to parse individual components in the document, and then the whole document.  
-- Components can be defined/configured programmatically and inserted in the document using divs, spans or shortcodes. Example:
+- The qmd files can contain organization-specific components that must be extracted and parsed individually.
+- Components can be defined/configured programmatically and inserted in the document using divs, spans or shortcodes.
 
+Example qmd file:
 ```py
 org.Highchart(key = "my-highchart",
               title = "my_title",
@@ -16,7 +17,6 @@ org.FactBox(key = "my-factbox,
             title = "Factbox title"
             text = "")
 ```
-
 ``````markdown
 Inserting highchart, recommended way:
 
@@ -43,7 +43,9 @@ Text that go inside the factbox.
 :::
 ``````
 
-## Domain logic: Document publisher
+Q: Zensical; how to have a separate qmd file and reference it in this article?
+
+## Domain logic - document publisher
 
 Keeps a document and its components in sync with a publishing platform using four parts:
 
@@ -56,10 +58,10 @@ Q: In which part should serialization happen? If in publish client, then where d
 
 ### Attributes
 
-Document processor
-Content parser
-Publish client
-Content storage
+* Document processor
+* Content parser
+* Publish client
+* Content storage
 
 ### Methods 
 
@@ -77,12 +79,12 @@ Sync components
 1. Get the document publish path from the storage. If not set, raise an error.
 2. Extract all the component from the document.
 3. For each component, do:
-   1. Get the component data from storage.
-   2. Parse the component into a content.
-   3. Set the content's id to the value from storage.
-   4. Sync the content with the publish client. Throw error if not working.
-   5. Set the storage's id to the value from the response.
-   6. Replace the component with the html from the response.
+     1. Get the component data from storage.
+     2. Parse the component into a content.
+     3. Set the content's id to the value from storage.
+     4. Sync the content with the publish client. Throw error if not working.
+     5. Set the storage's id to the value from the response.
+     6. Replace the component with the html from the response.
 
 
 ## Driven adapters
