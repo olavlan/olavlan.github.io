@@ -1,37 +1,31 @@
+
+Defining components in code cells:
+
 ```{python}
-org.Highchart(key = "my-highchart",
-              title = "Highchart title",
-              data = my_dataframe,
-              xlabel = "my_xlabel")
+org.create_highchart(
+    key="my-highchart",
+    title="Highchart title",
+    data=my_dataframe,
+    xlabel="my_xlabel",
+)
 ```
+
 ```{python}
-org.FactBox(key = "my-factbox,
-            title = "Factbox title"
-            markdown_content = f"""
-                Markdown text with dynamic content: {my_number}.
-            """)
+org.configure_factbox(
+    key = "my-factbox,
+    title = "Factbox title",
+    box_type = "default")
 ```
 
-The output of creating a component will be a help text showing how to insert it in the document.
+Inserting a highchart:
 
-Inserting a highchart that has data:
+`{python} org.insert("my_highchart")`
 
-{{< org my-highchart >}}
 
-Inserting a factbox that has markdown text:
+Inserting a factbox:
 
-{{< org my-factbox >}}
+::: `{python} org.insert_configuration("my_factbox")`
 
-Inserting a highchart that lacks data (paste excel data in codeblock instead):
+Markdown text inside the fatbox.
 
-```{.org #my-highchart }
-Column 1, Column 2
-1, 2
-3, 4
-```
-
-Inserting a factbox that lacks markdown text (write in fenced div instead):
-
-::: {.org #my-factbox }
-Markdown text with dynamic content: `{python} my_number`.
 :::

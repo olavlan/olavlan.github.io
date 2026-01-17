@@ -4,9 +4,9 @@
 - We want to publish a Quarto Markdown file (qmd).
 - The qmd file should be parsed into structured data and sent to a publishing service.
 - The qmd file can contain organization-specific components that must be extracted and parsed individually.
-- The components can be created programmatically and inserted in the document using [shortcodes](https://quarto.org/docs/authoring/shortcodes.html) (see examples below). 
+- The components can be created programmatically and inserted in the document (see examples below)
   - Advantage: the components are self-documenting in the editor and validated immediately. 
-- Alternative approach: insert components using [divs](https://quarto.org/docs/authoring/markdown-basics.html#sec-divs-and-spans), [spans](https://quarto.org/docs/authoring/markdown-basics.html#sec-divs-and-spans) or codeblocks (see examples below).
+- Some components are configured programmatically, while the content is put inside a Markdown [div](https://pandoc.org/demo/example33/8.18-divs-and-spans.html) (see example below).
 
 ??? example
 
