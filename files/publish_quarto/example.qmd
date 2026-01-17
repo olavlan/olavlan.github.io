@@ -33,5 +33,5 @@ Column 1, Column 2
 Inserting a factbox that lacks markdown text (write in fenced div instead):
 
 ::: {.org #my-factbox }
-Markdown text with dynamic content: ```{python} my_number```.
+Markdown text with dynamic content: `{python} my_number`.
 :::
