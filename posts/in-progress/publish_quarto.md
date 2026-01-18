@@ -54,28 +54,79 @@ graph LR
      classDef empty width:0px,height:0px;
 ```
 
-### High-level flow: creating components
+### Interfaces
 
-Trigger: User calls Notebook Client with a highchart configuration.
+=== "Models"
 
-1. Notebook Client parses the highchart configuration into content parameters.
-2. Notebook Client calls Content Processor with content parameters. Content Processor returns parsed content.
-3. Notebook Client calls Storage with content. Storage stores the content in a metadata file.
-4. Notebook Client prints shortcode to user.
+     ```py
+     class Content(Protocoll):
+          content_type: str
+          identifier: str
+          path: str
 
-### High-level flow: preview document
+          to_dict() -> dict[str, Any]: ...
+     ```
 
-Trigger: User calls CLI to preview a Quarto Markdown file.
+=== "Document Processor"
 
-CLI ... 
+     ```py
+     class DocumentProcessor(Protocol):
+          ...
 
-1. ... creates a Document Publisher with the file path.
-2. ... calls the Document Publisher to sync the document.   
-       Document publisher ...
-     1. ... calls Document Processor to extract the metadata.
-     2. ... calls Content Processor to parse the metadata into a content object.
-     3. ... calls Storage to fetch the stored id o
-     4. ... calls PublishClient to send teh 
+     class ContentProcessor(Protocol):
+          ...
+
+     class Storage(Protocol):
+          ...
+
+     class PublishClient(Protocol):
+          ...
+
+     ```
+
+### Domain logic
+
+=== "Component Storage"
+
+     ```py
+     class ComponentStorage:
+          content_processor: ContentProcessor
+          storage: Storage
+
+          def store_component(self) -> None:
+               ...
+     ``` 
+
+=== "Document Publisher"
+
+     ```py
+     class DocumentPublisher:
+          document_processor: DocumentProcessor
+          content_processor: ContentProcessor
+          storage: Storage
+          publish_client: PublishClient
+
+          def sync_document(self) -> str:
+               ...
+
+          def sync_components(self) -> str:
+               document_path = storage.get_value(0, "path")
+               if document_path is None:
+                    raise Exception()
+
+               def element_transformer(key: str, original_html: str) -> str:
+                    content = content_processor.parse(
+                         data = storage.get(key),
+                         html = original_html)
+                    content.parent_path = document_path
+                    response = publish_client.send_content(
+                         data = content_processor.serialize(content)
+                    )
+                    storage.update_value(key, "id", response.id)
+                    return response.html
+               
+               document_processor.replace_elements(target_class="org", transformer=element_transformer)
+     ```
 
 ## Driving adapters
 
