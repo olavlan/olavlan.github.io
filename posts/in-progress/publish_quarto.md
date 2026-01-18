@@ -14,18 +14,74 @@
 
 Notes:
 
-- Insertion is done through Quarto [shortcodes](https://quarto.org/docs/authoring/shortcodes.html) which is parsed with a custom Quarto extension. 
+- Insertion happens through Quarto [shortcodes](https://quarto.org/docs/authoring/shortcodes.html), which is parsed with a custom Quarto [extension](https://quarto.org/docs/extensions/shortcodes.html). 
 - A fact box is defined with a Pandoc [fenced div](https://pandoc.org/MANUAL.html#extension-fenced_divs) with the configuration inserted.
 
-## Architecture diagram
+## Architecture
+
+### Dependency graph
+
+``` mermaid
+graph LR
+     subgraph driving[Driving adapters]
+          cli["Command-line Interface"]
+          notebookclient[Notebook Client]
+     end
+     subgraph domain[Domain]
+          docpublisher[Document Publisher]
+          componentstorage[Component Storage]
+     end
+     subgraph driven[Driven adapters]
+          docprocessor[Document Processor]
+          publishclient[Publish Client]
+          contentprocessor[Content Processor]
+          storage[Storage]
+     end
+
+     cli --> docpublisher
+     notebookclient --> componentstorage
+
+     docpublisher --- split[ ]:::empty
+     split --> docprocessor
+     split --> publishclient
+     split --> contentprocessor
+     split --> storage
+
+     componentstorage --- split2[ ]:::empty
+     split2 --> contentprocessor
+     split2 --> storage
+
+     classDef empty width:0px,height:0px;
+```
+
+### High-level flow: creating components
+
+Trigger: User calls Notebook Client with a highchart configuration.
+
+1. Notebook Client parses the highchart configuration into content parameters.
+2. Notebook Client calls Content Processor with content parameters. Content Processor returns parsed content.
+3. Notebook Client calls Storage with content. Storage stores the content in a metadata file.
+4. Notebook Client prints shortcode to user.
+
+### High-level flow: preview document
+
+Trigger: User calls CLI to preview a Quarto Markdown file.
+
+CLI ... 
+
+1. ... creates a Document Publisher with the file path.
+2. ... calls the Document Publisher to sync the document.   
+       Document publisher ...
+     1. ... calls Document Processor to extract the metadata.
+     2. ... calls Content Processor to parse the metadata into a content object.
+     3. ... calls Storage to fetch the stored id o
+     4. ... calls PublishClient to send teh 
 
 ## Driving adapters
 
 ### Cli
 
-**Implementation**
-
-=== "Preview"
+=== "Command: preview"
 
     1. Load the quarto extension for the organization.
     2. Sync the document with a new document publisher. This ensures that the document exists in the publish platform.
@@ -37,13 +93,11 @@ Notes:
 
 ### Notebook client
 
-**Implementation**
-
-=== "Initialization"
+=== "Module initialization"
 
      Create a new component storage using the current notebook file.
 
-=== "Create highchart"
+=== "Function: create highchart"
 
      1. Takes in as parameters a content key and data.
      2. Process the parameters.
@@ -93,8 +147,8 @@ Notes:
 === "Attributes"
 
     * Document processor
-    * Content parser
-    * Content storage
+    * Content processor
+    * Storage
     * Publish client
 
 === "Methods"
@@ -106,24 +160,22 @@ Notes:
 
 === "Sync document"
 
-     1. Extract the metadata and html from the document.
-     2. Parse the data into a content.
-     3. Set the content's id to the value from storage.
-     4. Sync the content with the publish client. Throw error if not working.
-     5. Set the storage's id and path to the values in the response.
+     2. Use the content processor to parse extracted data from the document processor.
+     3. Use the storage to set the content's id
+     4. Use the publish client to send the serialized content. Throw error if not working.
+     5. Use the storage to store the id and path from the response.
      6. Return the path.
 
 === "Sync components"
 
-    1. Get the document publish path from the storage. If not set, raise an error.
-    2. Extract all the components from the document, i.e. their key and html.
-    3. For each component, do:
-         1. Get the component data from storage.
-         2. Parse the component data and html into a content.
-         3. Set the content's id to the value from storage.
-         4. Sync the content with the publish client. Throw error if not working.
-         5. Set the storage's id to the value from the response.
-         6. Replace the component with the html from the response.
+    1. Use the storage to get the document publish path. If not set, raise an error.
+    2. Define a replace function, i.e. a mapping from a key to html:
+         1. Use the storage to get the stored data of the content.
+         1. Use the content processor to create a content from stored data and html.
+         3. Use the publish client to send the serialized content. 
+         4. Use the storage to store the id from the response.
+         5. Return the html from the response.
+     3. Use the document processor. 
 
 ## Driven adapters
 
@@ -139,7 +191,7 @@ Notes:
 
     * Get document metadata
     * Get document html
-    * Get id and html of elements that have a certain class
+    * Replace elements
 
 **Implementation (pandoc)**
 
@@ -152,47 +204,32 @@ Notes:
 
 === "Get document html"
 
-=== "Get elements of given class"
+=== "Replace elements"
+
+     1. Takes in a target class name and a replacement function (from id to html)
+     2. Defines an "action", i.e. a function that takes in a pandoc element and produces a new one
+          1. The action returns nothing if the element does not have the target class or an id 
+          2. Otherwise the action uses the replacement function to set the new html
 
 ### Content processor
 
-**Interfaces**
+**Interface**
 
-=== "Content"
+=== "Models"
 
-     Attributes:
+     Content:
 
      * Content type
      * Id
 
-=== "Content parser"
-
-     Methods:
+=== "Methods"
 
      * Parse content
-
-=== "Content storage"
-
-     Attributes:
-
-     * Content parser
-
-     Methods:
-
-     * Get content
-     * Update content
-     * Get id
-     * Update id
-
-=== "Content serializer"
-
-     Methods:
-
      * Serialize content
 
 **Implementation**
 
-=== "Content (models)"
+=== "Models"
 
      BaseContent
 
@@ -200,23 +237,28 @@ Notes:
 
      Highchart
 
-=== "Content parser"
-
-     Parse content:
+=== "Parse content"
 
      1. Test
 
-=== "Content storage"
-
-     Serialize content:
+=== "Serialize content"
 
      1. Test
 
-=== "Content serializer"
+### Storage
 
-     Parse content:
+**Interface**
 
-     1. Test
+=== "Methods"
+
+     * Get
+     * Update
+     * Get value
+     * Update value
+
+**Implementation**
+
+=== "Get"
 
 ### Publish client (driven adapter)
 
