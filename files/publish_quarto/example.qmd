@@ -1,4 +1,3 @@
-
 Defining components in code cells:
 
 ```{python}
@@ -19,13 +18,12 @@ org.configure_factbox(
 
 Inserting a highchart:
 
-`{python} org.insert("my_highchart")`
+{{< org my-highchart >}}
 
+Inserting the configuration of a factbox:
 
-Inserting a factbox:
+::: {{< org my-factbox >}}
 
-::: `{python} org.insert_configuration("my_factbox")`
-
-Markdown text inside the fatbox.
+The text of the factbox, written with Markdown inside a fenced div.
 
 :::

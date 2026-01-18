@@ -1,12 +1,10 @@
 # Parsing of a Quarto Markdown file for publishing
 
-
 - We want to publish a Quarto Markdown file (qmd).
 - The qmd file should be parsed into structured data and sent to a publishing service.
-- The qmd file can contain organization-specific components that must be extracted and parsed individually.
-- The components can be created programmatically and inserted in the document (see examples below)
-  - Advantage: the components are self-documenting in the editor and validated immediately. 
-- Some components are configured programmatically, while the content is put inside a Markdown [div](https://pandoc.org/demo/example33/8.18-divs-and-spans.html) (see example below).
+- The qmd file can contain organization-specific components that must be parsed and sent individually.
+- The components can be created or configured programmatically and inserted in the document (see examples below).
+    - Advantage: the creation/configuration of components is self-documenting in the editor and validated immediately.
 
 ??? example
 
@@ -14,9 +12,14 @@
      --8<-- "files/publish_quarto/example.qmd"
      `````
 
+Notes:
+
+- Insertion is done through Quarto [shortcodes](https://quarto.org/docs/authoring/shortcodes.html) which is parsed with a custom Quarto extension. 
+- A fact box is defined with a Pandoc [fenced div](https://pandoc.org/MANUAL.html#extension-fenced_divs) with the configuration inserted.
+
 ## Architecture diagram
 
-## Driving adapters 
+## Driving adapters
 
 ### Cli
 
@@ -25,10 +28,12 @@
 === "Preview"
 
     1. Load the quarto extension for the organization.
-    2. Sync the document with a new document publisher.
+    2. Sync the document with a new document publisher. This ensures that the document exists in the publish platform.
     3. Create a file watcher.
-    4. Every time the document updates, create a document publisher, and sync the components and then the document.
-
+    4. Every time the document updates:
+          1. Create a new document publisher.
+          2. Sync the components.
+          3. Sync the document.
 
 ### Notebook client
 
@@ -70,8 +75,7 @@
 
      1. Take in the key and arbitrary keyword arguments.
      2. Use content parser to parse the keyword arguments into the right content.
-     3. Store the content using the content storage. 
-
+     3. Store the content using the content storage.
 
 ### Document publisher
 
@@ -85,7 +89,6 @@
      * A content parser that can parse the extracted data into content objects.
      * A publish client that can send content objects to the publishing platform.
      * A content storage that can store data.
-
 
 === "Attributes"
 
@@ -105,7 +108,7 @@
 
      1. Extract the metadata and html from the document.
      2. Parse the data into a content.
-     3. Set the content's id to the value from storage. 
+     3. Set the content's id to the value from storage.
      4. Sync the content with the publish client. Throw error if not working.
      5. Set the storage's id and path to the values in the response.
      6. Return the path.
@@ -122,7 +125,6 @@
          5. Set the storage's id to the value from the response.
          6. Replace the component with the html from the response.
 
-
 ## Driven adapters
 
 ### Document processor
@@ -132,7 +134,6 @@
 === "Description"
 
      Can extract data from a document, possibly after making modifications to the document.
-
 
 === "Methods"
 
@@ -149,12 +150,9 @@
 
 === "Get document metadata"
 
-
 === "Get document html"
 
-
 === "Get elements of given class"
-
 
 ### Content processor
 
@@ -173,14 +171,13 @@
 
      * Parse content
 
-
 === "Content storage"
 
      Attributes:
 
      * Content parser
 
-     Methods: 
+     Methods:
 
      * Get content
      * Update content
@@ -193,13 +190,12 @@
 
      * Serialize content
 
-
 **Implementation**
 
 === "Content (models)"
 
      BaseContent
-     
+
      Article
 
      Highchart
@@ -219,7 +215,7 @@
 === "Content serializer"
 
      Parse content:
-     
+
      1. Test
 
 ### Publish client (driven adapter)
