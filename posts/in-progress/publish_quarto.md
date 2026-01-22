@@ -1,10 +1,9 @@
 # Parsing of a Quarto Markdown file for publishing
 
 - We want to publish a Quarto Markdown file (qmd).
-- The qmd file should be parsed into structured data and sent to a publishing service.
+- The qmd file should be parsed into structured data and sent to a publishing server.
 - The qmd file can contain organization-specific components that must be parsed and sent individually.
-- The components can be created or configured programmatically and inserted in the document (see examples below).
-    - Advantage: the creation/configuration of components is self-documenting in the editor and validated immediately.
+- The components can be created or configured programmatically and inserted in the document (see examples file).
 
 ??? example
 
@@ -14,27 +13,32 @@
 
 Notes:
 
-- Insertion happens through Quarto [shortcodes](https://quarto.org/docs/authoring/shortcodes.html), which is parsed with a custom Quarto [extension](https://quarto.org/docs/extensions/shortcodes.html). 
-- A fact box is defined with a Pandoc [fenced div](https://pandoc.org/MANUAL.html#extension-fenced_divs) with the configuration inserted.
+- Insertion of components happens with Pandoc [fenced divs](https://pandoc.org/MANUAL.html#extension-fenced_divs), using a class to mark it as an organization-specific component, and an id to reference the python object.
+- For some component types, markdown content can be added inside the fenced div.
 
-## Architecture
+## Overview
 
-### Dependency graph
+We will make a Python package with two main features:
+
+1. Programmatically creating components in the  notebook. The entry point is a notebook client where we expose functions to create the components.
+2. Send parsed notebook content to the publish platform. The entry point is a CLI where we offer a preview command that sends the updated data when the notebook file changes.
+
+Dependency graph:
 
 ``` mermaid
 graph LR
      subgraph driving[Driving adapters]
-          cli["Command-line Interface"]
-          notebookclient[Notebook Client]
+          cli[<i>Command-line Interface</i>]
+          notebookclient[<i>Notebook Client</i>]
      end
      subgraph domain[Domain]
-          docpublisher[Document Publisher]
-          componentstorage[Component Storage]
+          docpublisher[<i>Document Publisher</i>]
+          componentstorage[<i>Component Storage</i>]
      end
      subgraph driven[Driven adapters]
-          docprocessor[Document Processor]
-          publishclient[Publish Client]
-          contentprocessor[Content Processor]
+          docprocessor[<i>Document Processor</i><br>Document<br>Element<br>]
+          contentprocessor[<i>Content Parser</i><br>Content]
+          publishclient[<i>Publish Client</i><br>Response]
           storage[Storage]
      end
 
@@ -54,23 +58,27 @@ graph LR
      classDef empty width:0px,height:0px;
 ```
 
-=== "Document Processor"
+## Interfaces
+
+=== "Document processor"
 
      ```py
-     class Element(NamedTuple):
-          key: str
-          inner_html: str
-
      class Document(NamedTuple):
           metadata: dict[str, Any]
           html: str
 
+     class Element(NamedTuple):
+          key: str
+          inner_html: str
+
      class DocumentProcessor(Protocol):
           def extract_document(self) -> Document: ...
           def extract_elements(self) -> list[Element]: ...
-          def replace_element(self, key: str, html: str) -> None: ...
+          def replace_element(self, key: str, new_html: str) -> None: ...
+     ```
+=== "Content Parser"
 
-
+     ```py
      class Content:
           title: str
           publish_folder: str
@@ -81,11 +89,19 @@ graph LR
 
      class ContentParser(Protocol):
           def parse_element(metadata: dict[str, Any], html: str) -> Content: ...
+     ```
 
+=== "Storage"
+
+     ```py
      class Storage(Protocol):
           def update(key: str | int, data: dict[str, Any]): -> None: ...
           def get(ket: str | int) -> dict[str, Any]: ...
+     ```
 
+=== "Publish Client"
+
+     ```py
      class Response(TypedDict):
           publish_id: str
           publish_path: str
@@ -94,15 +110,24 @@ graph LR
 
      class PublishClient(Protocol):
           def send_content(payload: dict[str, Any]) -> Response: ...
+     ```
 
+## Domain logic 
 
+### General flow
+
+### Code
+
+=== "Document Publisher"
+
+     ```py 
      DOCUMENT_KEY = 0
 
      class DocumentPublisher:
 
           def sync_document(self) -> str:
-               metadata, html = self.document_processor.extract_document()
-               content = self.content_parser.parse_element(
+               metadata, html = self.document_processor.extract_document() 
+               content = self.content_parser.parse_element( 
                     metadata = metadata | {"publish_id": self.storage.get(DOCUMENT_KEY).get("publish_id")}
                     html = html
                )
@@ -111,7 +136,7 @@ graph LR
                return response.publish_url
 
           def sync_components(self) -> None:
-               publish_folder = self.storage.get(DOCUMENT_KEY).get("publish_folder")
+               publish_folder = self.storage.get(DOCUMENT_KEY).get("publish_path") # (1)!
                if publish_folder is None:
                     raise Exception()
 
@@ -125,46 +150,4 @@ graph LR
                     self.document_processor.replace_element(key, response.publish_html)
      ```
 
-### Domain logic
-
-=== "Component Storage"
-
-     ```py
-     class ComponentStorage:
-          content_processor: ContentProcessor
-          storage: ComponentStorage
-
-          def store_component(self) -> None:
-               ...
-     ``` 
-
-=== "Document Publisher"
-
-     ```py
-     class DocumentPublisher:
-          ContentType: type[Content]
-          document_processor: DocumentProcessor
-          storage: ComponentStorage
-          publish_client: PublishClient
-
-          def sync_document(self) -> str:
-               ...
-
-          def sync_components(self) -> str:
-               document_path = storage.get_value(0, "path")
-               if document_path is None:
-                    raise Exception()
-
-               def element_transformer(key: str, original_html: str) -> str:
-                    content = content_processor.parse(
-                         data = storage.get(key),
-                         html = original_html)
-                    content.parent_path = document_path
-                    response = publish_client.send_content(
-                         data = content_processor.serialize(content)
-                    )
-                    storage.update_value(key, "id", response.id)
-                    return response.html
-               
-               document_processor.replace_elements(target_class="org", transformer=element_transformer)
-     ```
+     1. A content needs a publish folder. For a document, this is set in the document metadata, while a component uses the document path. This means that a document needs to have been synced once before components can be synced.

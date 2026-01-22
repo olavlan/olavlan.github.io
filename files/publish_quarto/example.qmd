@@ -18,11 +18,12 @@ org.configure_factbox(
 
 Inserting a highchart:
 
-{{< org my-highchart >}}
+::: { #my-highchart .org }
+:::
 
 Inserting the configuration of a factbox:
 
-::: {{< org my-factbox >}}
+::: { #my-factbox .org }
 
 The text of the factbox, written with Markdown inside a fenced div.
 
