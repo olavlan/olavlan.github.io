@@ -54,34 +54,75 @@ graph LR
      classDef empty width:0px,height:0px;
 ```
 
-### Interfaces
-
-=== "Models"
-
-     ```py
-     class Content(Protocoll):
-          content_type: str
-          identifier: str
-          path: str
-
-          to_dict() -> dict[str, Any]: ...
-     ```
-
 === "Document Processor"
 
      ```py
-     class DocumentProcessor(Protocol):
-          ...
+     class Element(NamedTuple):
+          key: str
+          inner_html: str
 
-     class ContentProcessor(Protocol):
-          ...
+     class Document(NamedTuple):
+          metadata: dict[str, Any]
+          html: str
+
+     class DocumentProcessor(Protocol):
+          def extract_document(self) -> Document: ...
+          def extract_elements(self) -> list[Element]: ...
+          def replace_element(self, key: str, html: str) -> None: ...
+
+
+     class Content:
+          title: str
+          publish_folder: str
+          publish_id: str | None
+
+          def to_dict() -> dict[str, Any]: ...
+          def serialize() -> dict[str, Any]: ...
+
+     class ContentParser(Protocol):
+          def parse_element(metadata: dict[str, Any], html: str) -> Content: ...
 
      class Storage(Protocol):
-          ...
+          def update(key: str | int, data: dict[str, Any]): -> None: ...
+          def get(ket: str | int) -> dict[str, Any]: ...
+
+     class Response(TypedDict):
+          publish_id: str
+          publish_path: str
+          publish_url: str
+          publish_html: str | None
 
      class PublishClient(Protocol):
-          ...
+          def send_content(payload: dict[str, Any]) -> Response: ...
 
+
+     DOCUMENT_KEY = 0
+
+     class DocumentPublisher:
+
+          def sync_document(self) -> str:
+               metadata, html = self.document_processor.extract_document()
+               content = self.content_parser.parse_element(
+                    metadata = metadata | {"publish_id": self.storage.get(DOCUMENT_KEY).get("publish_id")}
+                    html = html
+               )
+               response = self.publish_client.sync_content(content.serialize())
+               self.storage.update(DOCUMENT_KEY, response)
+               return response.publish_url
+
+          def sync_components(self) -> None:
+               publish_folder = self.storage.get(DOCUMENT_KEY).get("publish_folder")
+               if publish_folder is None:
+                    raise Exception()
+
+               for key, html in self.document_processor.extract_elements():
+                    content = self.content_parser.parse_element(
+                         metadata = self.storage.get(key) | {"publish_folder": publish_folder}
+                         html = html
+                    )
+                    response = self.publish_client.sync_content(content.serialize())
+                    self.storage.update(key, response)
+                    self.document_processor.replace_element(key, response.publish_html)
      ```
 
 ### Domain logic
@@ -91,7 +132,7 @@ graph LR
      ```py
      class ComponentStorage:
           content_processor: ContentProcessor
-          storage: Storage
+          storage: ComponentStorage
 
           def store_component(self) -> None:
                ...
@@ -101,9 +142,9 @@ graph LR
 
      ```py
      class DocumentPublisher:
+          ContentType: type[Content]
           document_processor: DocumentProcessor
-          content_processor: ContentProcessor
-          storage: Storage
+          storage: ComponentStorage
           publish_client: PublishClient
 
           def sync_document(self) -> str:
@@ -127,215 +168,3 @@ graph LR
                
                document_processor.replace_elements(target_class="org", transformer=element_transformer)
      ```
-
-## Driving adapters
-
-### Cli
-
-=== "Command: preview"
-
-    1. Load the quarto extension for the organization.
-    2. Sync the document with a new document publisher. This ensures that the document exists in the publish platform.
-    3. Create a file watcher.
-    4. Every time the document updates:
-          1. Create a new document publisher.
-          2. Sync the components.
-          3. Sync the document.
-
-### Notebook client
-
-=== "Module initialization"
-
-     Create a new component storage using the current notebook file.
-
-=== "Function: create highchart"
-
-     1. Takes in as parameters a content key and data.
-     2. Process the parameters.
-        1. Convert the dataframe into a html table.
-     3. Use the component storage to store the highchart.
-
-## Domain
-
-### Component storage
-
-**Interface**
-
-=== "Description"
-
-     Can put document components in a storage that can later be accessed by a document publisher.
-
-=== "Attributes"
-
-     * Content parser
-     * Content storage
-
-=== "Methods"
-
-     * Store components
-
-**Implementation**
-
-=== "Store component"
-
-     1. Take in the key and arbitrary keyword arguments.
-     2. Use content parser to parse the keyword arguments into the right content.
-     3. Store the content using the content storage.
-
-### Document publisher
-
-**Interface**
-
-=== "Description"
-
-     Keeps a document and its components in sync with a publishing platform using four parts:
-
-     * A document processor that can extract data from and modify the document.
-     * A content parser that can parse the extracted data into content objects.
-     * A publish client that can send content objects to the publishing platform.
-     * A content storage that can store data.
-
-=== "Attributes"
-
-    * Document processor
-    * Content processor
-    * Storage
-    * Publish client
-
-=== "Methods"
-
-    * Sync document
-    * Sync components
-
-**Implementation**
-
-=== "Sync document"
-
-     2. Use the content processor to parse extracted data from the document processor.
-     3. Use the storage to set the content's id
-     4. Use the publish client to send the serialized content. Throw error if not working.
-     5. Use the storage to store the id and path from the response.
-     6. Return the path.
-
-=== "Sync components"
-
-    1. Use the storage to get the document publish path. If not set, raise an error.
-    2. Define a replace function, i.e. a mapping from a key to html:
-         1. Use the storage to get the stored data of the content.
-         1. Use the content processor to create a content from stored data and html.
-         3. Use the publish client to send the serialized content. 
-         4. Use the storage to store the id from the response.
-         5. Return the html from the response.
-     3. Use the document processor. 
-
-## Driven adapters
-
-### Document processor
-
-**Interface**
-
-=== "Description"
-
-     Can extract data from a document, possibly after making modifications to the document.
-
-=== "Methods"
-
-    * Get document metadata
-    * Get document html
-    * Replace elements
-
-**Implementation (pandoc)**
-
-=== "Initialization"
-
-     1. Gets a file as input, for instance Quarto Markdown.
-     2. Converts the file to the pandoc AST of the document, and stores it as an attribute. The convertion depends on the original file format.
-
-=== "Get document metadata"
-
-=== "Get document html"
-
-=== "Replace elements"
-
-     1. Takes in a target class name and a replacement function (from id to html)
-     2. Defines an "action", i.e. a function that takes in a pandoc element and produces a new one
-          1. The action returns nothing if the element does not have the target class or an id 
-          2. Otherwise the action uses the replacement function to set the new html
-
-### Content processor
-
-**Interface**
-
-=== "Models"
-
-     Content:
-
-     * Content type
-     * Id
-
-=== "Methods"
-
-     * Parse content
-     * Serialize content
-
-**Implementation**
-
-=== "Models"
-
-     BaseContent
-
-     Article
-
-     Highchart
-
-=== "Parse content"
-
-     1. Test
-
-=== "Serialize content"
-
-     1. Test
-
-### Storage
-
-**Interface**
-
-=== "Methods"
-
-     * Get
-     * Update
-     * Get value
-     * Update value
-
-**Implementation**
-
-=== "Get"
-
-### Publish client (driven adapter)
-
-**Interface**
-
-=== "Attributes"
-
-    * Serializer
-    * Base url
-    * Endpoint
-    * Preview base path
-
-=== "Methods"
-
-    * Send content
-
-**Implementation**
-
-=== "Send content"
-
-    1. Receives the content object and uses the serializer to create a payload.
-    2. Creates a post request with:
-         * Authentication headers with a token fetched from environment.
-         * Body with the content payload.
-         * URL: concatinating the base url and the endpoint.
-    3. Parses the response and creates a response object containing:
-         * The id of the content: parsed from response.
-         * The full preview URL of the content: concatinating the base URL, preview base path, and the received content path.
-         * The html representation of the content: uses the id to create a reference to the object that can be put in HTML and understood by the publishing platform.
