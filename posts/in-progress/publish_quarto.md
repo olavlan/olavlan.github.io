@@ -14,7 +14,7 @@
      path: "/org/topic/subtopic"
      title: "My article"
      ---
-     
+
      Defining components in code cells:
      
      ```{python}
@@ -38,7 +38,7 @@
      ::: { #my-highchart .org }
      :::
      
-     Inserting the configuration of a factbox:
+     Inserting a factbox:
      
      ::: { #my-factbox .org }
      
@@ -128,7 +128,7 @@ Click the plus icons for descriptions.
           def to_dict() -> dict[str, Any]: ...
 
      class ContentParser(Protocol): # (1)!
-          def parse(metadata: dict[str, Any], html: str) -> Content: ... # (2)!
+          def parse(metadata: dict[str, Any], html: str) -> Content: ... # (2)
           def serialize(content: Content) -> dict[str, Any]: ... # (3)!
      ```
 
@@ -168,10 +168,10 @@ Click the plus icons for descriptions.
 A simplified example of a notebook client:
 
 ```py 
-import org # (1)!
-import get_storage
+import get_storage, get_content_processor # (1)
 
-storage = get_storage() # (2)!
+storage = get_storage()
+content_parser = get_content_parser()
 
 def create_highchart(
      key: str,
@@ -179,31 +179,34 @@ def create_highchart(
      data: DataFrame,
      graph_type: str,
 ):
-     if not isinstance(key, str): # (4)!
+     if not isinstance(key, str): # (2)!
           raise Exception()
-     content = org.Highchart(
-          title = title,
-          html_table = _dataframe_to_html(data), # (3)!
-          graph_type = graph_type
+     metadata = {
+          "content_type": "highchart",
+          "title": title,
+          "graph_type": graph_type
+     }
+     content = content_parser.parse(
+          metadata = metadata,
+          html = _dataframe_to_html_table(data), # (3)!
      )
      storage.update(key, content)
      return _get_markdown_snippet(key)
 
-def _dataframe_to_html(data: DataFrame) -> str: ...
+def _dataframe_to_html_table(data: DataFrame) -> str: ...
 
 def _get_markdown_snippet(key: str):
      return f"::: {{ #{key} .org }}\n:::"
 ```
 
-1. We import the organization-specific models. More on this later.
-2. We assume that the storage interface has an implementation that we can use.
-3. Notebook client allows a specific data format, which is converted to the format expected by the organization-specific model.
-4. In order to avoid conflicts with integer keys used by the program.
+1. We assume that the interfaces have implementations we can use.
+2. In order to avoid conflicts with integer keys used by the program.
+3. The notebook client allows a specific data type (DataFrame), which is converted to the type expected by the parser.
 
-All functions we expose will have the same steps: 
+Other functions will have the same steps: 
 
- 1. Convert the user-input.
- 2. Create an organization-specific content object.
+ 1. Convert the user-input if necessary.
+ 2. Parse into an organization-specific content object.
  3. Store the content.
  4. Return a markdown snippet.
  
@@ -211,16 +214,10 @@ The user can now put the snippet in the document, and the document publisher can
 
 ## Document publisher
 
-The document publisher has three main steps:
-
-1. Ensure that the document has a publish path.
-2. Sync all the components in the document.
-3. Sync the final document.
-
 ```py 
 DOCUMENT_KEY = 0 # (1)!
 
-def sync_document(
+def sync_document( # (7)!
      document_processor: DocumentProcessor,
      content_processor: ContentProcessor,
      storage: Storage,
@@ -258,3 +255,7 @@ def sync_document(
 4. It's important to store the response, since the publish id will be used on the next sync, ensuring that we update the existing component rather than creating a new one.
 5. In the same way as we insert components with markdown snippets, the publish service offers to insert components with html snippets. We therefore replace the markdown snippets with the html snippets in the internal document.
 6. With the snippets replaced, we are now ready to parse and send the whole document. The flow is very similar to syncing components, except that the data is fetched directly from the document rather than storage; but we do need to include the publish id!
+7. The function has three main steps:
+     1. Ensure that the document has a publish path.
+     2. Sync all the components in the document.
+     3. Sync the final document.
