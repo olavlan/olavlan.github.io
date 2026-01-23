@@ -5,7 +5,7 @@ org.create_highchart(
     key="my-highchart",
     title="Highchart title",
     data=my_dataframe,
-    xlabel="my_xlabel",
+    graph_type="line",
 )
 ```
 
