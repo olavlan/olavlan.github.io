@@ -10,6 +10,11 @@
 ??? example
 
      ````` {title="my_article.qmd"}
+     ---
+     path: "/org/topic/subtopic"
+     title: "My article"
+     ---
+     
      Defining components in code cells:
      
      ```{python}
