@@ -2,6 +2,12 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
+[manifest]
+members = [
+    "publish-quarto",
+    "site",
+]
+
 [[package]]
 name = "click"
 version = "8.3.1"
@@ -40,6 +46,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/7d/ab/7dd27d9d863b3376f
 wheels = [
     { url = "https://files.pythonhosted.org/packages/70/81/54e3ce63502cd085a0c556652a4e1b919c45a446bd1e5300e10c44c8c521/markdown-3.10-py3-none-any.whl", hash = "sha256:b5b99d6951e2e4948d939255596523444c0e677c669700b1d17aa4a8a464cb7c", size = 107678, upload-time = "2025-11-03T19:51:13.887Z" },
 ]
+
+[[package]]
+name = "publish-quarto"
+version = "0.1.0"
+source = { editable = "prototypes/publish_quarto" }
 
 [[package]]
 name = "pygments"
