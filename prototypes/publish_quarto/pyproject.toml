@@ -5,7 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Olav Landsverk", email = "olav.landsverk@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "nh3>=0.3.2",
+    "pandocfilters>=1.5.1",
+]
 
 [project.scripts]
 publish-quarto = "publish_quarto:main"
