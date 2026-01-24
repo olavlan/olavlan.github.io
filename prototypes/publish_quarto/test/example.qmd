@@ -1,0 +1,35 @@
+---
+path: "/org/topic/subtopic"
+title: "My article"
+---
+
+Defining components in code cells:
+
+```{python}
+org.create_highchart(
+    key="my-highchart",
+    title="Highchart title",
+    data=my_dataframe,
+    graph_type="line",
+)
+```
+
+```{python}
+org.configure_factbox(
+    key = "my-factbox,
+    title = "Factbox title",
+    box_type = "default")
+```
+
+Inserting a highchart:
+
+::: { #my-highchart .org }
+:::
+
+Inserting a factbox:
+
+::: { #my-factbox .org }
+
+The text of the factbox, written with Markdown inside a fenced div.
+
+:::

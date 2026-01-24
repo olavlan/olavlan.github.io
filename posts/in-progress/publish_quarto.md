@@ -1,64 +1,58 @@
 # Parsing of a Quarto Markdown file for publishing
 
-## Reqirements
-
-- User wants to send a Quarto Markdown (qmd) file to a publishing service, and get a preview URL back.
-- The qmd file should be parsed into structured data and sent to a publishing service.
+- User wants to send a Quarto Markdown (qmd) file to a publish service, and get a preview URL back.
+- The qmd file should be parsed into structured data and sent to a publish service.
 - The qmd file can contain organization-specific components that must be parsed and sent individually.
 - The components can be created or configured programmatically and inserted in the document (see examples file below).
 
 ??? example
 
      ````` {title="my_article.qmd"}
-     ---
-     path: "/org/topic/subtopic"
-     title: "My article"
-     ---
-
-     Defining components in code cells:
-     
-     ```{python}
-     org.create_highchart(
-         key="my-highchart",
-         title="Highchart title",
-         data=my_dataframe,
-         graph_type="line",
-     )
-     ```
-     
-     ```{python}
-     org.configure_factbox(
-         key = "my-factbox,
-         title = "Factbox title",
-         box_type = "default")
-     ```
-     
-     Inserting a highchart:
-     
-     ::: { #my-highchart .org }
-     :::
-     
-     Inserting a factbox:
-     
-     ::: { #my-factbox .org }
-     
-     The text of the factbox, written with Markdown inside a fenced div.
-     
-     :::
+     --8<-- "prototypes/publish_quarto/test/example.qmd"
      `````
      Notes:
 
-     1. Insertion of components is done with Pandoc [fenced divs](https://pandoc.org/MANUAL.html#extension-fenced_divs), using a class and id to reference the Python object.
+     1. Components are inserted with Pandoc [fenced divs](https://pandoc.org/MANUAL.html#extension-fenced_divs), using a class and id to reference the Python object.
      2. For some component types, markdown content can be added inside the fenced div.
 
 ## Overview
 
-We will create a Python package with the following entry points:
+We will create a Python package with two entry points:
 
-1. A notebook client that exposes functions to create components.
-2. A CLI with a preview command that:
-     - Prints a preview URL for the rendered qmd file.
-     - Keeps the preview up to date with the qmd file; watches for file changes in the qmd and sends updated content to the publish service.
+1. A notebook client with functions to create components.
+2. A CLI with commands:
+     - Preview
+          - Watches for changes in the qmd file. 
+          - Sends updated content to the publish service.
+          - Prints the preview URL received from the service.
+
+## Domain logic
+
+```py
+--8<-- "prototypes/publish_quarto/src/publish_quarto/domain.py:48:"
+```
+
+1. Comment.
+2. **Example.** Parses  the following markdown file into an internal document representation:
+
+     ````` {title="my_article.qmd"}
+     --8<-- "prototypes/publish_quarto/test/example.qmd"
+     `````
+
+3. **Example.** Parses the markdown frontmatter
+
+     ````` {title="my_article.qmd"}
+     --8<-- "prototypes/publish_quarto/test/example.qmd:1:4"
+     `````
+
+     into the dict
+
+     ```json
+     {
+          "path": "/org/topic/subtopic",
+          "title": "My article"
+     }
+     ```
 
 ## Dependency graph
      
@@ -105,17 +99,19 @@ Click the plus icons for descriptions.
           inner_html: str
 
      class DocumentProcessor(Protocol): # (1)!
+          def load(self, path: Path): ... # (6)!
           def extract_metadata(self) -> dict[str, Any]: ... # (5)!
           def extract_elements(self, target_class: str) -> list[Element]: ... # (2)!
           def replace_element(self, key: str, new_html: str) -> bool: ... # (3)!
           def extract_html(self) -> str: ... # (4)!
      ```
 
-     1. A class that can modify and extract content from a document. An implementation should support a specific format, and should be instantiated with a document of that format.
-     2. Extracts all container elements (divs and spans) that has the target class and an id. For each element, extracts the id and inner content (converted to html).
+     1. A class that can modify and extract content from a document. An implementation should support a specific format.
+     2. Extracts all container elements (divs and spans) that has the target class and an id. For each element, extracts the id and inner content as html.
      3. Replaces the element of the given key with the given html.
-     4. Extracts the document (converted to html) in its current state (possibly after replacements). 
+     4. Extracts the internal document as html, potentially after replacements.
      5. Extracts the document metadata.
+     6. Loads a new file into the processor.
 
 === "Content Parser"
 
@@ -128,7 +124,7 @@ Click the plus icons for descriptions.
           def to_dict() -> dict[str, Any]: ...
 
      class ContentParser(Protocol): # (1)!
-          def parse(metadata: dict[str, Any], html: str) -> Content: ... # (2)
+          def parse(metadata: dict[str, Any], html: str) -> Content: ... # (2)!
           def serialize(content: Content) -> dict[str, Any]: ... # (3)!
      ```
 
@@ -168,7 +164,7 @@ Click the plus icons for descriptions.
 A simplified example of a notebook client:
 
 ```py 
-import get_storage, get_content_processor # (1)
+import get_storage, get_content_processor # (1)!
 
 storage = get_storage()
 content_parser = get_content_parser()
@@ -181,16 +177,17 @@ def create_highchart(
 ):
      if not isinstance(key, str): # (2)!
           raise Exception()
+
      metadata = {
           "content_type": "highchart",
           "title": title,
           "graph_type": graph_type
      }
-     content = content_parser.parse(
-          metadata = metadata,
-          html = _dataframe_to_html_table(data), # (3)!
-     )
-     storage.update(key, content)
+     html = _dataframe_to_html_table(data) # (3)!
+
+     content = content_parser.parse(metadata, html)
+     storage.update(key, content.to_dict())
+     
      return _get_markdown_snippet(key)
 
 def _dataframe_to_html_table(data: DataFrame) -> str: ...
@@ -214,23 +211,28 @@ The user can now put the snippet in the document, and the document publisher can
 
 ## Document publisher
 
+Now that we know how components are created and inserted in the document, we can write the logic to sync the whole document:
+
 ```py 
 DOCUMENT_KEY = 0 # (1)!
 
 def sync_document( # (7)!
+     path: Path,
      document_processor: DocumentProcessor,
      content_processor: ContentProcessor,
      storage: Storage,
      publish_client: PublishClient):
      
-     document_metadata = self.document_processor.extract_metadata()
+     self.document_processor.load(path) # (1)!
+
+     document_metadata = self.document_processor.extract_metadata() # (2)!
      document_publish_path = self.storage.get(DOCUMENT_KEY).get("publish_path")
      if not document_publish_path: # (2)!
           content = self.content_parser.parse(document_metadata, "")
           response = self.publish_client.sync_content(content.serialize())
           document_publish_path = response.publish_path
 
-     document_elements = self.document_processor.extract_elements(target_class="ssb")
+     document_elements = self.document_processor.extract_elements(target_class="org")
      for key, html in document_elements:
           component = self.content_parser,parse(
                metadata = self.storage.get(key) | {"publish_folder": document_publish_path} # (3)!
@@ -249,13 +251,71 @@ def sync_document( # (7)!
      return response.publish_url
 ```
 
-1. We set an integer key for the document, which cannot conflict with the user-defined keys, which are always strings.
-2. If the document publish path is not found in storage, we send a simplified version of the content to the publish server first. This is necessary because the components needs to be published under this path.
-3. We ensure that the component is sent to the right publish folder.
-4. It's important to store the response, since the publish id will be used on the next sync, ensuring that we update the existing component rather than creating a new one.
-5. In the same way as we insert components with markdown snippets, the publish service offers to insert components with html snippets. We therefore replace the markdown snippets with the html snippets in the internal document.
-6. With the snippets replaced, we are now ready to parse and send the whole document. The flow is very similar to syncing components, except that the data is fetched directly from the document rather than storage; but we do need to include the publish id!
-7. The function has three main steps:
+1. **Example**: loads and parses the markdown file:
+
+     ````` {title="my_article.qmd"}
+     ---
+     path: "/org/topic/subtopic"
+     title: "My article"
+     ---
+     
+     Defining components in code cells:
+     
+     ```{python}
+     org.create_highchart(
+         key="my-highchart",
+         title="Highchart title",
+         data=my_dataframe,
+         graph_type="line",
+     )
+     ```
+     
+     ```{python}
+     org.configure_factbox(
+         key = "my-factbox,
+         title = "Factbox title",
+         box_type = "default")
+     ```
+     
+     Inserting a highchart:
+     
+     ::: { #my-highchart .org }
+     :::
+     
+     Inserting a factbox:
+     
+     ::: { #my-factbox .org }
+     
+     The text of the factbox, written with Markdown inside a fenced div.
+     
+     :::
+     `````
+
+2. **Example**: the markdown frontmatter
+
+     ```md
+     ---
+     path: "/org/topic/subtopic"
+     title: "My article"
+     ---
+     ```
+
+     becomes the dictionary
+
+     ```json
+     {
+          "path": "/org/topic/subtopic",
+          "title": "My article"
+     }
+     ```
+
+3. We set an integer key for the document, which cannot conflict with the user-defined keys, which are always strings.
+4. If the document publish path is not found in storage, we send a simplified version of the content to the publish server first. This is necessary because the components needs to be published under this path.
+5. We ensure that the component is sent to the right publish folder.
+6. It's important to store the response, since the publish id will be used on the next sync, ensuring that we update the existing component rather than creating a new one.
+7. In the same way as we insert components with markdown snippets, the publish service offers to insert components with html snippets. We therefore replace the markdown snippets with the html snippets in the internal document.
+8. With the snippets replaced, we are now ready to parse and send the whole document. The flow is very similar to syncing components, except that the data is fetched directly from the document rather than storage; but we do need to include the publish id!
+9. The function has three main steps:
      1. Ensure that the document has a publish path.
      2. Sync all the components in the document.
      3. Sync the final document.
