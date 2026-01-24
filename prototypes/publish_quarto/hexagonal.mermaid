@@ -1,0 +1,28 @@
+graph LR
+     subgraph driving[Driving adapters]
+          cli[<i>Command-line Interface</i>]
+          notebookclient[<i>Notebook Client</i>]
+     end
+     subgraph domain[Domain]
+          docpublisher[<i>Document Publisher</i>]
+     end
+     subgraph driven[Driven adapters]
+          docprocessor[<i>Document Processor</i><br>Element<br>]
+          contentprocessor[<i>Content Parser</i><br>Content]
+          publishclient[<i>Publish Client</i><br>Response]
+          storage[<i>Storage</i>]
+     end
+
+     cli --> docpublisher
+
+     docpublisher --- split[ ]:::empty
+     split --> docprocessor
+     split --> publishclient
+     split --> contentprocessor
+     split --> storage
+
+     notebookclient --- split2[ ]:::empty
+     split2 --> contentprocessor
+     split2 --> storage
+
+     classDef empty width:0px,height:0px;
