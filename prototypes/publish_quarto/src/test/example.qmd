@@ -6,10 +6,21 @@ title: "My article"
 Defining components in code cells:
 
 ```{python}
+import publish_quarto as org
+import pandas as pd
+
+df = pd.DataFrame(
+    [[1, 2], [3, 4]],
+    columns=["col1", "col2"],
+    index=["row1", "row2"],
+)
+``` 
+
+```{python}
 org.create_highchart(
     key="my-highchart",
     title="Highchart title",
-    data=my_dataframe,
+    data=df,
     graph_type="line",
 )
 ```

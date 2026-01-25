@@ -4,8 +4,8 @@ from typing import Any, Mapping
 
 
 class LocalFileStorage:
-    def __init__(self, path: str) -> None:
-        self.path = Path(path)
+    def __init__(self, path: Path) -> None:
+        self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("w") as f:
             json.dump({}, f)
@@ -32,3 +32,8 @@ class LocalFileStorage:
     def get(self, key: str | int) -> dict[str, Any]:
         store = self._load()
         return store.get(key, {}).copy()
+
+
+def get_local_file_storage(document_path: str):
+    parent = Path(document_path).parent
+    return LocalFileStorage(parent / ".org.json")
