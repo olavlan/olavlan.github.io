@@ -87,10 +87,8 @@ class PandocDocumentProcessor:
         for id_, i in self._element_index.items():
             element = self.document["blocks"][i]
             inner_blocks: list[PandocElement] = element["c"][1]
-            yield Element(
-                id=id_,
-                inner_html=self._blocks_to_html(inner_blocks),
-            )
+            inner_html = self._blocks_to_html(inner_blocks) if inner_blocks else None
+            yield Element(id_, inner_html)
 
     def replace_element(self, id_: str, new_html: str) -> None:
         i = self._element_index[id_]

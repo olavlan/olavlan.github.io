@@ -1,6 +1,6 @@
 from publish_quarto.domain import Response, sync_document
 from publish_quarto.adapters.document_processor import PandocDocumentProcessor
-from publish_quarto.adapters.storage import get_local_file_storage
+from publish_quarto.adapters.storage import LocalFileStorage
 from publish_quarto.adapters.content_parser import OrgContentParser
 from typing import Any
 import subprocess
@@ -8,14 +8,15 @@ import subprocess
 
 class MockPublishClient:
     def send_content(self, payload: dict[str, Any]) -> Response:
+        print(payload)
         api_response = {"_id": "mock-id", "_path": "mock_path"}
 
         html = ""
         content_type = payload.get("contentType")
-        print(content_type)
         id_ = api_response.get("_id")
         if content_type is not None and id_ is not None:
             html = f"<p>[ {content_type} {content_type}=&quot;{id_}&quot; /]</p>"
+
         return Response(
             "mock-publish-path",
             "mock-publish-id",
@@ -49,7 +50,7 @@ document_path = "example.qmd"
 adapters = (
     PandocDocumentProcessor(),
     OrgContentParser(),
-    get_local_file_storage(),
+    LocalFileStorage(),
     MockPublishClient(),
 )
 

@@ -3,7 +3,7 @@ from typing import NamedTuple, Protocol, Any, Mapping, Iterator
 
 class Element(NamedTuple):
     id: str
-    inner_html: str
+    inner_html: str | None
 
 
 class DocumentProcessor(Protocol):
@@ -24,13 +24,13 @@ class Content(Protocol):
 
 
 class ContentParser(Protocol):
-    def parse(self, metadata: Mapping[str, Any], html: str) -> Content: ...
+    def parse(self, metadata: Mapping[str, Any], html: str | None) -> Content: ...
     def serialize(self, content: Content) -> dict[str, Any]: ...
 
 
 class Storage(Protocol):
-    def update(self, key: str | int, data: Mapping[str, Any]) -> None: ...
-    def get(self, key: str | int) -> dict[str, Any]: ...
+    def update(self, key: str, data: Mapping[str, Any]) -> None: ...
+    def get(self, key: str) -> dict[str, Any]: ...
 
 
 class Response(NamedTuple):
@@ -44,7 +44,8 @@ class PublishClient(Protocol):
     def send_content(self, payload: dict[str, Any]) -> Response: ...
 
 
-DOCUMENT_KEY = 0  # (1)!
+USER_KEY_PREFIX = "user:"
+DOCUMENT_KEY = "app:document"
 
 
 def sync_document(
@@ -58,6 +59,7 @@ def sync_document(
 
     document_metadata = document_processor.extract_metadata()
     document_metadata["content_type"] = "article"
+
     document_publish_path = storage.get(DOCUMENT_KEY).get("publish_path")
     if not document_publish_path:
         content = content_parser.parse(document_metadata, "")
@@ -65,13 +67,13 @@ def sync_document(
         document_publish_path = response.publish_path
 
     document_elements = document_processor.extract_elements(target_class="org")
-    for key, html in document_elements:
+    for id_, html in document_elements:
+        key = USER_KEY_PREFIX + id_
         metadata = storage.get(key) | {"publish_folder": document_publish_path}
         component = content_parser.parse(metadata, html)
         response = publish_client.send_content(content_parser.serialize(component))
         storage.update(key, {"publish_id": response.publish_id})
-        print(response.publish_html)
-        document_processor.replace_element(key, response.publish_html)
+        document_processor.replace_element(id_, response.publish_html)
 
     metadata = document_metadata | {
         "publish_id": storage.get(DOCUMENT_KEY).get("publish_id")
@@ -83,5 +85,4 @@ def sync_document(
         DOCUMENT_KEY,
         {"publish_id": response.publish_id, "publish_path": response.publish_path},
     )
-    print(html)
     return response

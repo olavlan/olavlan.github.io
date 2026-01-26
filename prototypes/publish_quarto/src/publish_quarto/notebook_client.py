@@ -1,10 +1,11 @@
 from publish_quarto.adapters.content_parser import OrgContentParser
-from publish_quarto.adapters.storage import get_local_file_storage
+from publish_quarto.adapters.storage import LocalFileStorage
+from publish_quarto.domain import USER_KEY_PREFIX, Content
 from narwhals.typing import IntoDataFrame
 import narwhals as nw
 from typing import Literal
 
-STORAGE = get_local_file_storage()
+STORAGE = LocalFileStorage()
 CONTENT_PARSER = OrgContentParser()
 
 
@@ -13,16 +14,17 @@ def configure_factbox(
     title: str,
     display_type: Literal["default", "sneakPeek", "aiIcon"] = "default",
 ):
-    if not isinstance(key, str):
-        raise Exception()
     metadata = {
         "content_type": "factBox",
         "title": title,
         "display_type": display_type,
     }
 
-    content = CONTENT_PARSER.parse(metadata, "")
-    STORAGE.update(key, content.to_dict())
+    content = CONTENT_PARSER.parse(
+        metadata=metadata,
+        html=None,
+    )
+    _store_user_content(user_key=key, content=content)
 
     md = _get_markdown_snippet(key, placeholder_text="Faktaboksens tekst skrives her.")
     print(md)
@@ -34,8 +36,6 @@ def create_highchart(
     data: IntoDataFrame,
     graph_type: str,
 ):
-    if not isinstance(key, str):
-        raise Exception()
     metadata = {
         "content_type": "highchart",
         "title": title,
@@ -44,10 +44,15 @@ def create_highchart(
     html = _dataframe_to_html_table(data)
 
     content = CONTENT_PARSER.parse(metadata, html)
-    STORAGE.update(key, content.to_dict())
+    _store_user_content(user_key=key, content=content)
 
     md = _get_markdown_snippet(key)
     print(md)
+
+
+def _store_user_content(user_key: str, content: Content):
+    key = USER_KEY_PREFIX + str(user_key)
+    STORAGE.update(key, content.to_dict())
 
 
 def _dataframe_to_html_table(data: IntoDataFrame) -> str:

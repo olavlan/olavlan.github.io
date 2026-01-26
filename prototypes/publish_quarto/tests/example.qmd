@@ -41,7 +41,5 @@ Inserting a highchart:
 Inserting a factbox:
 
 ::: { #my-factbox .org }
-
 The text of the factbox, written with Markdown inside a fenced div.
-
 :::

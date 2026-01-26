@@ -1,19 +1,19 @@
 {
-  "my-highchart": {
+  "user:my-highchart": {
     "title": "Highchart title",
     "content_type": "highchart",
     "graph_type": "line",
     "html_table": "<table><tbody>\n<tr>\n    <td>col1</td>\n    <td>col2</td>\n</tr>\n  <tr>\n    <td>1</td>\n    <td>2</td>\n  </tr>\n  <tr>\n    <td>3</td>\n    <td>4</td>\n  </tr>\n</tbody></table>",
     "publish_id": "mock-publish-id"
   },
-  "my-factbox": {
+  "user:my-factbox": {
     "title": "Factbox title",
     "content_type": "factBox",
     "display_type": "default",
     "html_text": "",
     "publish_id": "mock-publish-id"
   },
-  "0": {
+  "app:document": {
     "publish_id": "mock-publish-id",
     "publish_path": "mock-publish-path"
   }

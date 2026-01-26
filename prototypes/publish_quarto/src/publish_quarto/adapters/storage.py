@@ -4,21 +4,23 @@ from typing import Any, Mapping
 
 
 class LocalFileStorage:
-    def __init__(self, path: Path) -> None:
-        self.path = path
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("w") as f:
-            json.dump({}, f)
+    path: Path
 
-    def _load(self) -> dict[str | int, dict[str, Any]]:
+    def __init__(self) -> None:
+        self.path = Path.cwd() / ".org.json"
+        if not self.path.exists():
+            with self.path.open("w") as f:
+                json.dump({}, f)
+
+    def _load(self) -> dict[str, dict[str, Any]]:
         with self.path.open() as f:
             return json.load(f)
 
-    def _save(self, data: dict[str | int, dict[str, Any]]) -> None:
+    def _save(self, data: dict[str, dict[str, Any]]) -> None:
         with self.path.open("w") as f:
             json.dump(data, f, indent=2)
 
-    def update(self, key: str | int, data: Mapping[str, Any]) -> None:
+    def update(self, key: str, data: Mapping[str, Any]) -> None:
         store = self._load()
 
         current = store.get(key, {})
@@ -29,10 +31,6 @@ class LocalFileStorage:
         store[key] = current
         self._save(store)
 
-    def get(self, key: str | int) -> dict[str, Any]:
+    def get(self, key: str) -> dict[str, Any]:
         store = self._load()
         return store.get(key, {}).copy()
-
-
-def get_local_file_storage():
-    return LocalFileStorage(Path.cwd() / ".org.json")
