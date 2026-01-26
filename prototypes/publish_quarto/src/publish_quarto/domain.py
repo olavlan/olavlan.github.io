@@ -16,8 +16,9 @@ class DocumentProcessor(Protocol):
 
 class Content(Protocol):
     title: str
-    publish_folder: str
+    publish_folder: str | None
     publish_id: str | None
+    content_type: str | None
 
     def to_dict(self) -> dict[str, Any]: ...
 
@@ -56,6 +57,7 @@ def sync_document(
     document_processor.load(raw_document_content)
 
     document_metadata = document_processor.extract_metadata()
+    document_metadata["content_type"] = "article"
     document_publish_path = storage.get(DOCUMENT_KEY).get("publish_path")
     if not document_publish_path:
         content = content_parser.parse(document_metadata, "")

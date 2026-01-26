@@ -8,6 +8,8 @@ import subprocess
 
 class MockPublishClient:
     def send_content(self, serialized_content: dict[str, Any]) -> Response:
+        html = "<p>"
+
         return Response(
             "mock-publish-path",
             "mock-publish-id",
