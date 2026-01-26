@@ -7,14 +7,20 @@ import subprocess
 
 
 class MockPublishClient:
-    def send_content(self, serialized_content: dict[str, Any]) -> Response:
-        html = "<p>"
+    def send_content(self, payload: dict[str, Any]) -> Response:
+        api_response = {"_id": "mock-id", "_path": "mock_path"}
 
+        html = ""
+        content_type = payload.get("contentType")
+        print(content_type)
+        id_ = api_response.get("_id")
+        if content_type is not None and id_ is not None:
+            html = f"<p>[ {content_type} {content_type}=&quot;{id_}&quot; /]</p>"
         return Response(
             "mock-publish-path",
             "mock-publish-id",
             "mock-publish-url",
-            "<p>mock-publish-html</p>",
+            html,
         )
 
 

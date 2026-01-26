@@ -41,7 +41,7 @@ class Response(NamedTuple):
 
 
 class PublishClient(Protocol):
-    def send_content(self, serialized_content: dict[str, Any]) -> Response: ...
+    def send_content(self, payload: dict[str, Any]) -> Response: ...
 
 
 DOCUMENT_KEY = 0  # (1)!
@@ -70,6 +70,7 @@ def sync_document(
         component = content_parser.parse(metadata, html)
         response = publish_client.send_content(content_parser.serialize(component))
         storage.update(key, {"publish_id": response.publish_id})
+        print(response.publish_html)
         document_processor.replace_element(key, response.publish_html)
 
     metadata = document_metadata | {
@@ -82,4 +83,5 @@ def sync_document(
         DOCUMENT_KEY,
         {"publish_id": response.publish_id, "publish_path": response.publish_path},
     )
-    return response.publish_id
+    print(html)
+    return response
