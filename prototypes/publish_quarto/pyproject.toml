@@ -22,4 +22,6 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pandas>=3.0.0",
+    "pytest>=9.0.2",
+    "quarto>=0.1.0",
 ]

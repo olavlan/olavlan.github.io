@@ -2,6 +2,8 @@ from dataclasses import asdict
 from dataclasses import dataclass
 from typing import Any
 from typing import Literal
+from typing import Mapping
+import nh3
 
 from publish_quarto.domain import Content
 
@@ -42,12 +44,12 @@ class OrgContent:
 class Article(OrgContent):
     content_type: ContentType = "article"
     ingress: str = ""
-    html: str = ""
+    html_text: str = ""
 
     def serialize(self) -> dict[str, Any]:
         s = super().serialize()
         s["data"]["ingress"] = self.ingress
-        s["data"]["articleText"] = self.html
+        s["data"]["articleText"] = self.html_text
         return s
 
 
@@ -72,34 +74,67 @@ class Highchart(OrgContent):
 class FactBox(OrgContent):
     content_type: ContentType = "factBox"
     display_type: Literal["default", "sneakPeek", "aiIcon"] = "default"
-    inner_html: str = ""
+    html_text: str = ""
 
     def serialize(self) -> dict[str, Any]:
         s = super().serialize()
         s["data"]["expansionBoxType"] = self.display_type
-        s["data"]["text"] = self.inner_html
+        s["data"]["text"] = self.html_text
         return s
 
 
-class OrgContentProcessor:
-    def parse(self, metadata: dict[str, Any], html: str) -> Content:
-        content_type = metadata.get("content_type")
-        if content_type == "article":
-            data = metadata | {"html": html}
-            return Article(**data)
-        elif content_type == "highchart":
-            data = metadata | {"html_table": html} if html else metadata
-            return Highchart(**data)
-        elif content_type == "factBox":
-            data = metadata | {"inner_html": html}
-            return FactBox(**metadata)
-        else:
-            return OrgContent(**metadata)
+BASIC_HTML_TAGS = {
+    "p",
+    "br",
+    "strong",
+    "em",
+    "b",
+    "i",
+    "ul",
+    "ol",
+    "li",
+    "blockquote",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "a",
+}
+
+
+class OrgContentParser:
+    def parse(self, metadata: Mapping[str, Any], html: str) -> Content:
+        match metadata.get("content_type"):
+            case "article":
+                return self._parse_article(metadata, html)
+            case "factBox":
+                return self._parse_factbox(metadata, html)
+            case "highchart":
+                return self._parse_highchart(metadata, html)
+            case _:
+                return OrgContent(**metadata)
 
     def serialize(self, content: Content) -> dict[str, Any]:
         if isinstance(content, OrgContent):
             return content.serialize()
         else:
-            raise Exception(
-                "Serialization handlers only implemented for content of type OrgContent."
-            )
+            raise Exception()
+
+    @classmethod
+    def _parse_article(cls, metadata: Mapping[str, Any], html: str) -> Article:
+        allowed_html_tags = BASIC_HTML_TAGS
+        html_text = nh3.clean(html, tags=allowed_html_tags)
+        return Article(**metadata, html_text=html_text)
+
+    @classmethod
+    def _parse_factbox(cls, metadata: Mapping[str, Any], html: str) -> FactBox:
+        allowed_html_tags = BASIC_HTML_TAGS - {"h2"}
+        html_text = nh3.clean(html, tags=allowed_html_tags)
+        return FactBox(**metadata, html_text=html_text)
+
+    @classmethod
+    def _parse_highchart(cls, metadata: Mapping[str, Any], html: str) -> Highchart:
+        allowed_html_tags = {"table", "tbody", "tr", "td"}
+        html_table = nh3.clean(html, tags=allowed_html_tags)
+        return Highchart(**metadata, html_table=html_table)

@@ -1,6 +1,4 @@
-from typing import NamedTuple, Protocol, Any, Mapping
-
-from pathlib import Path
+from typing import NamedTuple, Protocol, Any, Mapping, Iterator
 
 
 class Element(NamedTuple):
@@ -9,10 +7,10 @@ class Element(NamedTuple):
 
 
 class DocumentProcessor(Protocol):
-    def load(self, path: Path): ...
+    def load(self, raw_content: str): ...
     def extract_metadata(self) -> dict[str, Any]: ...
-    def extract_elements(self, target_class: str) -> list[Element]: ...
-    def replace_element(self, key: str, new_html: str) -> bool: ...
+    def extract_elements(self, target_class: str) -> Iterator[Element]: ...
+    def replace_element(self, id_: str, new_html: str) -> None: ...
     def extract_html(self) -> str: ...
 
 
@@ -31,7 +29,7 @@ class ContentParser(Protocol):
 
 class Storage(Protocol):
     def update(self, key: str | int, data: Mapping[str, Any]) -> None: ...
-    def get(self, ket: str | int) -> dict[str, Any]: ...
+    def get(self, key: str | int) -> dict[str, Any]: ...
 
 
 class Response(NamedTuple):
@@ -49,15 +47,15 @@ DOCUMENT_KEY = 0  # (1)!
 
 
 def sync_document(
-    path: Path,
+    raw_document_content: str,
     document_processor: DocumentProcessor,
     content_parser: ContentParser,
     storage: Storage,
     publish_client: PublishClient,
 ):
-    document_processor.load(path)  # (2)!
+    document_processor.load(raw_document_content)
 
-    document_metadata = document_processor.extract_metadata()  # (3)!
+    document_metadata = document_processor.extract_metadata()
     document_publish_path = storage.get(DOCUMENT_KEY).get("publish_path")
     if not document_publish_path:
         content = content_parser.parse(document_metadata, "")

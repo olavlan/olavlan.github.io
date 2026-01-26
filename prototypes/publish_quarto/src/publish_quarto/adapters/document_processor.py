@@ -3,7 +3,6 @@ import subprocess
 from typing import Any
 from typing import TypedDict, Iterator
 
-import nh3
 import pandocfilters as pf
 
 from publish_quarto.domain import Element
@@ -93,7 +92,7 @@ class PandocDocumentProcessor:
                 inner_html=self._blocks_to_html(inner_blocks),
             )
 
-    def replace_element(self, id_: str, new_html: str):
+    def replace_element(self, id_: str, new_html: str) -> None:
         i = self._element_index[id_]
         self.document["blocks"][i] = {
             "t": "RawBlock",
@@ -106,12 +105,12 @@ class PandocDocumentProcessor:
             if element["t"] != "Div":
                 continue
 
-            classes: list[str] = element["c"][0][1]
-            if target_class not in classes:
-                continue
-
             id_: str = element["c"][0][0]
             if not id_:
+                continue
+
+            classes: list[str] = element["c"][0][1]
+            if target_class not in classes:
                 continue
 
             index[id_] = i
@@ -137,4 +136,4 @@ class PandocDocumentProcessor:
             check=True,
         )
         html = result.stdout
-        return nh3.clean(html, attributes={})
+        return html

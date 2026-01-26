@@ -27,9 +27,10 @@ org.create_highchart(
 
 ```{python}
 org.configure_factbox(
-    key = "my-factbox,
-    title = "Factbox title",
-    box_type = "default")
+    key="my-factbox",
+    title="Factbox title",
+    display_type="default",
+)
 ```
 
 Inserting a highchart:

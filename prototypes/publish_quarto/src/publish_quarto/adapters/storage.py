@@ -34,6 +34,5 @@ class LocalFileStorage:
         return store.get(key, {}).copy()
 
 
-def get_local_file_storage(document_path: str):
-    parent = Path(document_path).parent
-    return LocalFileStorage(parent / ".org.json")
+def get_local_file_storage():
+    return LocalFileStorage(Path.cwd() / ".org.json")

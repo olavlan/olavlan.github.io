@@ -1,0 +1,18 @@
+{
+  "my-highchart": {
+    "content_type": "highchart",
+    "title": "Highchart title",
+    "publish_folder": "",
+    "publish_path": "",
+    "graph_type": "line",
+    "html_table": "<table><tbody>\n<tr>\n    <td>col1</td>\n    <td>col2</td>\n</tr>\n  <tr>\n    <td>1</td>\n    <td>2</td>\n  </tr>\n  <tr>\n    <td>3</td>\n    <td>4</td>\n  </tr>\n</tbody></table>"
+  },
+  "my-factbox": {
+    "content_type": "factBox",
+    "title": "Factbox title",
+    "publish_folder": "",
+    "publish_path": "",
+    "display_type": "default",
+    "html_text": ""
+  }
+}

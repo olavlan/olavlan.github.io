@@ -1,13 +1,31 @@
-import ipynbname
-from publish_quarto.adapters.content_parser import OrgContentProcessor
+from publish_quarto.adapters.content_parser import OrgContentParser
 from publish_quarto.adapters.storage import get_local_file_storage
 from narwhals.typing import IntoDataFrame
 import narwhals as nw
-import nh3
+from typing import Literal
 
-CURRENT_NOTEBOOK = str(ipynbname.path())
-STORAGE = get_local_file_storage(CURRENT_NOTEBOOK)
-CONTENT_PROCESSOR = OrgContentProcessor()
+STORAGE = get_local_file_storage()
+CONTENT_PARSER = OrgContentParser()
+
+
+def configure_factbox(
+    key: str,
+    title: str,
+    display_type: Literal["default", "sneakPeek", "aiIcon"] = "default",
+):
+    if not isinstance(key, str):
+        raise Exception()
+    metadata = {
+        "content_type": "factBox",
+        "title": title,
+        "display_type": display_type,
+    }
+
+    content = CONTENT_PARSER.parse(metadata, "")
+    STORAGE.update(key, content.to_dict())
+
+    md = _get_markdown_snippet(key, placeholder_text="Faktaboksens tekst skrives her.")
+    print(md)
 
 
 def create_highchart(
@@ -25,7 +43,7 @@ def create_highchart(
     }
     html = _dataframe_to_html_table(data)
 
-    content = CONTENT_PROCESSOR.parse(metadata, html)
+    content = CONTENT_PARSER.parse(metadata, html)
     STORAGE.update(key, content.to_dict())
 
     md = _get_markdown_snippet(key)
@@ -49,8 +67,10 @@ def _dataframe_to_html_table(data: IntoDataFrame) -> str:
 
     html += "</tbody></table>"
 
-    return nh3.clean(html, tags={"table", "tbody", "tr", "td"})
+    return html
 
 
-def _get_markdown_snippet(key: str):
-    return f"::: {{ #{key} .org }}\n:::"
+def _get_markdown_snippet(key: str, placeholder_text: str | None = None):
+    div_config = f"{{ #{key} .org }}"
+    div_content = f"\n{placeholder_text}\n\n" if placeholder_text is not None else ""
+    return f"::: {div_config}\n{div_content}:::"
