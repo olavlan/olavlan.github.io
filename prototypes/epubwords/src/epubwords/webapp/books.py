@@ -1,8 +1,23 @@
 from fastapi import APIRouter
-from fastapi import Form
+from fastapi import Form, Depends
 from fastapi.responses import HTMLResponse
 
+from epubwords.adapter import db
+
 router = APIRouter()
+
+
+@router.get("/", response_class=HTMLResponse)
+def list_ebooks(database_client: db.DatabaseClient = Depends(db.get_database_client)):
+    ebook_records = database_client.get_ebook_list()
+    html = "<table>"
+    html += "<thead><tr><td>Date added</td><td>Title</td></tr></thead>"
+    html += "<tbody>"
+    for e in ebook_records:
+        html += f"<tr><td>{e.date_added}</td><td>{e.title}</td></tr>"
+    html += "</tbody>"
+    html += "</table>"
+    return html
 
 
 @router.get("/{book_id}/{chapter_number}", response_class=HTMLResponse)
