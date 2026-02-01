@@ -9,4 +9,6 @@ dependencies = ["zensical>=0.0.11"]
 [tool.uv.workspace]
 members = [
     "prototypes/publish_quarto",
+    "prototypes/audiowords",
+    "prototypes/epubwords",
 ]

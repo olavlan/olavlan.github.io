@@ -1,0 +1,19 @@
+[project]
+name = "epubwords"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Olav Landsverk", email = "olav.landsverk@gmail.com" }]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.128.0",
+    "python-multipart>=0.0.22",
+    "uvicorn>=0.40.0",
+]
+
+[project.scripts]
+epubwords = "epubwords.main:run_webapp"
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
