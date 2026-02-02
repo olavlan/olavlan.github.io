@@ -1,6 +1,7 @@
 from typing import Protocol, NamedTuple
-from epubwords import domain
+from epubwords import core
 import datetime
+from pathlib import Path
 
 
 class EbookRecord(NamedTuple):
@@ -15,12 +16,25 @@ class ChapterRecord(NamedTuple):
 
 
 class DatabaseClient(Protocol):
-    def add_ebook(self, ebook: domain.Ebook) -> None: ...
+    def add_ebook(self, ebook: core.Ebook) -> None: ...
     def get_ebook_list(self) -> list[EbookRecord]: ...
     def get_chapter_list(self, ebook_id: int) -> list[ChapterRecord]: ...
-    def get_chapter(
-        self, ebook_id: int, chapter_number: int
-    ) -> domain.EbookChapter: ...
+    def get_chapter(self, ebook_id: int, chapter_number: int) -> core.EbookChapter: ...
 
 
-def get_database_client() -> DatabaseClient: ...
+class SqliteDatabaseClient:
+    db_path: Path
+
+    def __init__(self, db_path: Path) -> None:
+        self.db_path = db_path
+
+    def add_ebook(self, ebook: core.Ebook) -> None: ...
+    def get_ebook_list(self) -> list[EbookRecord]: ...
+    def get_chapter_list(self, ebook_id: int) -> list[ChapterRecord]: ...
+    def get_chapter(self, ebook_id: int, chapter_number: int) -> core.EbookChapter: ...
+
+
+def get_database_client() -> DatabaseClient:
+    from epubwords.config import environment
+
+    return SqliteDatabaseClient(db_path=environment.sqlite_file)
