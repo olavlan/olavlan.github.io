@@ -4,6 +4,8 @@ import datetime
 from pathlib import Path
 import sqlite3
 
+# TODO switch to sql files, best way to import?
+
 
 class EbookRecord(NamedTuple):
     id: int
