@@ -7,6 +7,8 @@ from epubwords.adapter import db
 
 router = APIRouter()
 
+# TODO switch to jinja templates
+
 
 @router.post("/upload", response_class=HTMLResponse)
 def upload_file(
