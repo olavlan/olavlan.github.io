@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from epubwords.webapp import books
+from epubwords.webapp import epub
 
 
 def setup_webapp(app: FastAPI):
-    app.include_router(books.router)
+    app.include_router(epub.router)
