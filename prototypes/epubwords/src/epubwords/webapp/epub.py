@@ -31,6 +31,7 @@ def list_ebooks(
           <button type="submit">Upload</button>
         </form>
     """
+
     html = f"""
         <table>
             <thead><tr><td>{add_ebook_html}</td></tr></thead>
@@ -46,6 +47,7 @@ def list_ebooks(
             </tbody>
         </table>
     """
+
     return html
 
 
@@ -56,16 +58,14 @@ def list_ebook_chapters(
 ) -> str:
     chapter_records = database_client.get_chapter_list(ebook_id)
 
-    html = "<table>"
-    html += "<tbody>"
+    html = "<table><tbody>"
     for c in chapter_records:
         html += f"""
             <tr>
                 <td><a href="/{ebook_id}/{c.number}">{c.title}</a></td>
             </tr>
         """
-    html += "</tbody>"
-    html += "</table>"
+    html += "</tbody></table>"
 
     return html
 
@@ -79,16 +79,16 @@ def show_chapter_words(
     chapter = database_client.get_chapter(ebook_id, chapter_number)
     # extract words from chapter
     words = []
-    html = "<table>"
-    html += "<tbody>"
+
+    html = "<table><tbody>"
     for word in words:
         html += f"""
             <tr>
                 <td><a href="/{ebook_id}/{chapter_number}/{word}">{word}</a></td>
             </tr>
         """
-    html += "</tbody>"
-    html += "</table>"
+    html += "</tbody></table>"
+
     return html
 
 
