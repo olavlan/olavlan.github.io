@@ -1,0 +1,18 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/.sql-formatter.json"
+            ],
+            "url": "https://raw.githubusercontent.com/sql-formatter-org/sql-formatter/refs/heads/master/schema.json"
+        }
+    ],
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.sql$",
+                "cmd": "sql-formatter -i ${file} -o ${file}"
+            }
+        ]
+    }
+}
