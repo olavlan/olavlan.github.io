@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import NamedTuple
+import typing
 
 
 @dataclass
@@ -14,7 +14,7 @@ class Ebook:
     chapters: list[EbookChapter]
 
 
-class WordOccurenceInChapter(NamedTuple):
+class WordOccurenceInChapter(typing.NamedTuple):
     start: int
     stop: int
 

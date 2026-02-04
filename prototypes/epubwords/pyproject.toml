@@ -6,7 +6,10 @@ readme = "README.md"
 authors = [{ name = "Olav Landsverk", email = "olav.landsverk@gmail.com" }]
 requires-python = ">=3.14"
 dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "ebooklib>=0.20",
     "fastapi>=0.128.0",
+    "jinja2>=3.1.6",
     "python-multipart>=0.0.22",
     "uvicorn>=0.40.0",
 ]
@@ -18,7 +21,8 @@ epubwords = "epubwords.main:run_webapp"
 requires = ["uv_build>=0.9.7,<0.10.0"]
 build-backend = "uv_build"
 
+[tool.uv.build-backend]
+source-include = ["templates/**"]
+
 [dependency-groups]
-dev = [
-    "pytest>=9.0.2",
-]
+dev = ["pytest>=9.0.2"]

@@ -1,0 +1,12 @@
+<form action="/upload" method="post" enctype="multipart/form-data">
+  <input type="file" name="file">
+  <button type="submit">Upload</button>
+</form>
+
+<table>
+  {% for ebook in ebook_records %}
+  <tr>
+    <td><a href="/{{ ebook.id }}">{{ ebook.title }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
