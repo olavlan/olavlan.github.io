@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS chapters (
     chapter_number INTEGER,
     content TEXT NOT NULL,
     PRIMARY KEY (ebook_id, chapter_number),
-    FOREIGN KEY (ebook_id) REFERENCES ebooks(id)
+    FOREIGN KEY (ebook_id) REFERENCES ebooks (id)
 );
