@@ -1,0 +1,22 @@
+project:
+  type: book
+
+book:
+  title: "Personal notes"
+  author: "Norah Jones"
+  date: "2/20/2026"
+  chapters:
+    - index.qmd
+    - chapters/intro.qmd
+    - part: My part
+      chapters:
+        - chapters/test.qmd
+
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
