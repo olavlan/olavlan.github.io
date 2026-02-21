@@ -3,7 +3,7 @@ project:
 
 book:
   title: "Personal notes"
-  author: "Norah Jones"
+  author: "Olav Landsverk"
   date: "2/20/2026"
   chapters:
     - index.qmd
@@ -12,6 +12,8 @@ book:
       chapters:
         - chapters/test.qmd
 
+execute: 
+  freeze: true
 
 bibliography: references.bib
 
