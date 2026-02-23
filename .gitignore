@@ -12,3 +12,5 @@ wheels/
 /.quarto/
 **/*.quarto_ipynb
 _book
+.env
+**/.*
