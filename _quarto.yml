@@ -8,9 +8,9 @@ book:
   chapters:
     - index.qmd
     - chapters/intro.qmd
-    - part: My part
+    - part: Pydantic AI
       chapters:
-        - chapters/test.qmd
+        - chapters/pydantic-ai-articles.qmd
 
 execute: 
   freeze: true
