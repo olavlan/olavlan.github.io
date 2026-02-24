@@ -8,7 +8,7 @@ book:
   date: "2/20/2026"
   chapters:
     - index.qmd
-    - part: Pydantic AI
+    - part: chapters/pydantic-ai/index.md
       chapters:
         - chapters/pydantic-ai/first/agent.ipynb
         - chapters/pydantic-ai/second/agent.ipynb
@@ -30,5 +30,6 @@ page-layout: full
 
 format:
   html:
+    code-fold: true
     theme:
       - superhero
