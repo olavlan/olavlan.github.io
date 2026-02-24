@@ -10,44 +10,60 @@ ssb:
 ```{python}
 import ssb_pubmd as ssb
 ```
-{% for block in article.blocks -%}
-
-{% if block.type == "highchart" -%}
+{% for highchart in highcharts -%}
 ```{python}
-{{block.dataframe_code}}
+{% if highchart.dataframe_code is not none -%}
+{{highchart.dataframe_code}}
+{% endif -%}
 
 highchart = ssb.Highchart(
-    title="{{ block.data.title }}",
-    graph_type="{{ block.data.graph_type }}",
+    title="{{ highchart.metadata.title }}",
+    graph_type="{{ highchart.metadata.graph_type }}",
     dataframe=df,
-    xlabel="{{ block.data.xlabel }}",
-    ylabel="{{ block.data.ylabel }}",
+    xlabel="{{ highchart.metadata.xlabel }}",
+    ylabel="{{ highchart.metadata.ylabel }}",
 )
-ssb.create("{{ block.key }}", highchart)
+ssb.create("{{ highchart.key }}", highchart)
 ```
+{% endfor -%}
 
-{% elif block.type == "factbox" -%}
+{% for factbox in factboxes -%}
 ```{python}
 factbox = ssb.Factbox(
-    title="{{ block.data.title }}",
-    display_type="{{ block.data.display_type }}",
+    title="{{ factbox.metadata.title }}",
+    display_type="{{ factbox.metadata.display_type }}",
 )
-ssb.create("{{ block.key }}", factbox)
+ssb.create("{{ factbox.key }}", factbox)
 ```
+{% endfor -%}
+
+{% for section in sections -%}
+
+{% if section.title -%}
+
+## {{ section.title }}
+
 {% endif -%}
+
+{% for paragraph in section.paragraphs -%}
+
+{{ paragraph }}
 
 {% endfor -%}
 
+{% if section.highchart -%}
 
-{% for block in article.blocks -%}
-{% if block.type == "markdown" %}
-{{ block.markdown_text }}
-{% elif block.type == "highchart" %}
-::: { #{{ block.key }} .ssb }
+::: { #{{ section.highchart.key }} .ssb }
 :::
-{% elif block.type == "factbox" %}
-::: { #{{ block.key }} .ssb }
-{{ block.markdown_text }}
-:::
+
 {% endif -%}
+
+{% if section.factbox -%}
+
+::: { #{{ section.factbox.key }} .ssb }
+{{ section.factbox.markdown_text }}
+:::
+
+{% endif -%}
+
 {% endfor -%}
