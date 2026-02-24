@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Programming notes",
+    "section": "",
+    "text": "Preface\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "chapters/intro.html",
+    "href": "chapters/intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "This is a book created from markdown and executable code.\nSee Knuth (1984) for additional discussion of literate programming.\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/pydantic-ai/naive/agent.html",
+    "href": "chapters/pydantic-ai/naive/agent.html",
+    "title": "2  First approach",
+    "section": "",
+    "text": "Imports:\n\n\nCode\nimport jinja2\nfrom pydantic import BaseModel, Field\nfrom pydantic_ai import Agent\nfrom pydantic_ai.models.openai import OpenAIChatModel\nimport ssb_pubmd as ssb\n\n\n\nDefine article model\n\n\n\nCode\nclass MarkdownBlock(BaseModel):\n    type: str = \"markdown\"\n    markdown_text: str = Field(description=\"The markdown text of the block.\")\n\n\nclass HighchartBlock(BaseModel):\n    type: str = \"highchart\"\n    key: str = Field(pattern=r\"^hc:\", description=\"A unique key for the highchart.\")\n    data: ssb.Highchart = Field(description=\"The metadata of the highchart.\")\n    dataframe_code: str = Field(\n        \"The code to get from the data source to the dataframe used in the highchart, given as one block with necessary imports at top and the final dataframe stored in a variable 'df'.\"\n    )\n\n\nclass FactboxBlock(BaseModel):\n    type: str = \"factbox\"\n    key: str = Field(pattern=r\"^fb:\", description=\"A unique key for the highchart.\")\n    data: ssb.Factbox = Field(description=\"The metadata of the factbox.\")\n    markdown_text: str = Field(description=\"The markdown content of the factbox.\")\n\n\nclass StatisticalArticle(BaseModel):\n    title: str = Field(description=\"A title for the article.\")\n    ingress: str = Field(description=\"A short ingress for the article.\")\n    blocks: list[MarkdownBlock | HighchartBlock | FactboxBlock]\n\n\n\nCreate and run agent with article as output\n\n\n\nCode\nagent = Agent(\n    model=OpenAIChatModel(\"gpt-5-mini\"),\n    output_type=StatisticalArticle,\n)\n\nresult = await agent.run(\n    \"Skriv en statistisk artikkel på norsk om klimadata, med en faktaboks og ett highcharts. Jeg har en csv-fil med kolonner 'year', 'temperature' og 'co2' - bruk pandas til å hente data for highchartet.\"\n)\n\narticle: StatisticalArticle = result.output\n\n\n\nInsert article output into markdown template\n\n\n\nCode\nenvironment = jinja2.Environment(loader=jinja2.FileSystemLoader(\"\"))\ntemplate = environment.get_template(\"template.qmd\")\noutput = template.render(article=article)\nwith open(\"output.qmd\", \"w\", encoding=\"utf-8\") as f:\n    f.write(output)\n\n\nNext steps:\n\nHow can we change the model to fit SSB articles better?\nHow can we make the user fill in what they want and the AI fill out the rest?\nHow can we make the style similar to existing articles?",
+    "crumbs": [
+      "Pydantic AI",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>First approach</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/pydantic-ai/first/agent.html",
+    "href": "chapters/pydantic-ai/first/agent.html",
+    "title": "2  First approach",
+    "section": "",
+    "text": "Imports:\n\n\nCode\nimport jinja2\nfrom pydantic import BaseModel, Field\nfrom pydantic_ai import Agent\nfrom pydantic_ai.models.openai import OpenAIChatModel\nimport ssb_pubmd as ssb\n\n\n\nDefine article model\n\n\n\nCode\nclass MarkdownBlock(BaseModel):\n    type: str = \"markdown\"\n    markdown_text: str = Field(description=\"The markdown text of the block.\")\n\n\nclass HighchartBlock(BaseModel):\n    type: str = \"highchart\"\n    key: str = Field(pattern=r\"^hc:\", description=\"A unique key for the highchart.\")\n    data: ssb.Highchart = Field(description=\"The metadata of the highchart.\")\n    dataframe_code: str = Field(\n        \"The code to get from the data source to the dataframe used in the highchart, given as one block with necessary imports at top and the final dataframe stored in a variable 'df'.\"\n    )\n\n\nclass FactboxBlock(BaseModel):\n    type: str = \"factbox\"\n    key: str = Field(pattern=r\"^fb:\", description=\"A unique key for the highchart.\")\n    data: ssb.Factbox = Field(description=\"The metadata of the factbox.\")\n    markdown_text: str = Field(description=\"The markdown content of the factbox.\")\n\n\nclass StatisticalArticle(BaseModel):\n    title: str = Field(description=\"A title for the article.\")\n    ingress: str = Field(description=\"A short ingress for the article.\")\n    blocks: list[MarkdownBlock | HighchartBlock | FactboxBlock]\n\n\n\nCreate and run agent with article as output\n\n\n\nCode\nagent = Agent(\n    model=OpenAIChatModel(\"gpt-5-mini\"),\n    output_type=StatisticalArticle,\n)\n\nresult = await agent.run(\n    \"Skriv en statistisk artikkel på norsk om klimadata, med en faktaboks og ett highcharts. Jeg har en csv-fil med kolonner 'year', 'temperature' og 'co2' - bruk pandas til å hente data for highchartet.\"\n)\n\narticle: StatisticalArticle = result.output\n\n\n\nInsert article output into markdown template\n\n\n\nCode\nenvironment = jinja2.Environment(loader=jinja2.FileSystemLoader(\"\"))\ntemplate = environment.get_template(\"template.qmd\")\noutput = template.render(article=article)\nwith open(\"output.qmd\", \"w\", encoding=\"utf-8\") as f:\n    f.write(output)\n\n\nNext steps:\n\nHow can we change the model to fit SSB articles better?\nHow can we make the user fill in what they want and the AI fill out the rest?\nHow can we make the style similar to existing articles?",
+    "crumbs": [
+      "Pydantic AI",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>First approach</span>"
+    ]
+  }
+]
