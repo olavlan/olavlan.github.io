@@ -10,23 +10,23 @@ book:
     - chapters/intro.qmd
     - part: Pydantic AI
       chapters:
-        - chapters/pydantic-ai/naive/agent.ipynb
+        - chapters/pydantic-ai/first/agent.ipynb
 
 execute: 
   echo: true
   output: false
   freeze: true
 
-highlight-style: mocha.theme
-
 code-fold: true
 code-overflow: wrap
 code-copy: true
+highlight-style: mocha.theme
 
 bibliography: references.bib
+
+page-layout: full
 
 format:
   html:
     theme:
-      - cosmo
-      - brand
+      - superhero
