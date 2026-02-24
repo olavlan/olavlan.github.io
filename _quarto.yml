@@ -8,7 +8,6 @@ book:
   date: "2/20/2026"
   chapters:
     - index.qmd
-    - chapters/intro.qmd
     - part: Pydantic AI
       chapters:
         - chapters/pydantic-ai/first/agent.ipynb
