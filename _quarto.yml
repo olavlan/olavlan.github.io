@@ -2,7 +2,7 @@ project:
   type: book
 
 book:
-  title: "Personal notes"
+  title: "Programming notes"
   author: "Olav Landsverk"
   date: "2/20/2026"
   chapters:
@@ -10,10 +10,18 @@ book:
     - chapters/intro.qmd
     - part: Pydantic AI
       chapters:
-        - chapters/pydantic-ai-articles.qmd
+        - chapters/pydantic-ai/naive/agent.ipynb
 
 execute: 
+  echo: true
+  output: false
   freeze: true
+
+highlight-style: mocha.theme
+
+code-fold: true
+code-overflow: wrap
+code-copy: true
 
 bibliography: references.bib
 
