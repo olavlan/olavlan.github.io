@@ -11,6 +11,7 @@ book:
     - part: Pydantic AI
       chapters:
         - chapters/pydantic-ai/first/agent.ipynb
+        - chapters/pydantic-ai/second/agent.ipynb
 
 execute: 
   echo: true
