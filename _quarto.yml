@@ -1,5 +1,6 @@
 project:
   type: book
+  output-dir: docs
 
 book:
   title: "Programming notes"
@@ -25,6 +26,7 @@ highlight-style: mocha.theme
 bibliography: references.bib
 
 page-layout: full
+
 
 format:
   html:
