@@ -1,0 +1,73 @@
+---
+ssb:
+    path:
+    title: "{{ article.title }}"
+    authors:
+        - name: Fornavn Etternavn
+          email: ---.ssb@no
+    ingress: "{{ article.ingress }}"
+---
+```{python}
+import ssb_pubmd as ssb
+```
+{% for section in article.sections -%}
+
+{% if section.title -%}
+
+# {{ section.title  }}
+
+{% endif -%}
+
+{% for block in section.blocks -%}
+
+{% if block.type == "highchart" -%}
+
+```{python}
+{{block.dataframe}}
+
+highchart = ssb.Highchart(
+    title="{{ block.metadata.title }}",
+    graph_type="{{ block.metadata.graph_type }}",
+    dataframe=df,
+    xlabel="{{ block.metadata.xlabel }}",
+    ylabel="{{ block.metadata.ylabel }}",
+)
+ssb.create("{{ block.key }}", highchart)
+```
+
+{% elif block.type == "factbox" -%}
+
+```{python}
+factbox = ssb.Factbox(
+    title="{{ block.metadata.title }}",
+    display_type="{{ block.metadata.display_type }}",
+)
+ssb.create("{{ block.key }}", factbox)
+```
+
+{% endif -%}
+
+{% endfor -%}
+
+{% for block in section.blocks -%}
+
+{% if block.type == "paragraph" -%}
+
+{{ block.markdown_text }}
+
+{% elif block.type == "highchart" -%}
+
+::: { #{{ block.key }} .ssb }
+:::
+
+{% elif block.type == "factbox" -%}
+
+::: { #{{ block.key }} .ssb }
+{{ block.markdown_text }}
+:::
+
+{% endif -%}
+
+{% endfor -%}
+
+{% endfor -%}

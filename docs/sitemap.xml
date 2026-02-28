@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://olavlan.github.io/posts/pydantic/generating-articles/2/index.html</loc>
+    <loc>https://olavlan.github.io/programming/pydantic/generating-articles/2/index.html</loc>
     <lastmod>2026-02-28T10:58:26.765Z</lastmod>
   </url>
   <url>
-    <loc>https://olavlan.github.io/index.html</loc>
-    <lastmod>2026-02-28T11:17:23.365Z</lastmod>
+    <loc>https://olavlan.github.io/programming/pydantic/generating-articles/1/index.html</loc>
+    <lastmod>2026-02-28T11:13:40.080Z</lastmod>
   </url>
   <url>
-    <loc>https://olavlan.github.io/posts/pydantic/generating-articles/1/index.html</loc>
-    <lastmod>2026-02-28T11:13:40.080Z</lastmod>
+    <loc>https://olavlan.github.io/index.html</loc>
+    <lastmod>2026-02-28T17:50:49.588Z</lastmod>
+  </url>
+  <url>
+    <loc>https://olavlan.github.io/programming/pydantic/generating-articles/3/index.html</loc>
+    <lastmod>2026-02-28T17:52:10.805Z</lastmod>
   </url>
 </urlset>

@@ -1,0 +1,90 @@
+---
+ssb:
+    path:
+    title: "Størrelsen på boliger i Norge"
+    authors:
+        - name: Fornavn Etternavn
+          email: ---.ssb@no
+    ingress: "Gjennomsnittlig boligareal i Norge har endret seg gradvis de siste tiårene. Her beskrives hovedtrekk i utviklingen over tid, regionale forskjeller og hvordan boliger fordeler seg etter størrelse, med eksempelkode for å lage diagrammer fra pandas-dataframes."
+---
+```{python}
+import ssb_pubmd as ssb
+```
+```{python}
+import pandas as pd
+years = list(range(2000, 2026))
+avg_size = [80 + (y - 2000) * 0.6 for y in years]
+df = pd.DataFrame({"year": years, "avg_size_sqm": avg_size})
+
+highchart = ssb.Highchart(
+    title="Figur 1. Gjennomsnittlig boligareal per bolig, 2000–2025. Kvadratmeter",
+    graph_type="line",
+    dataframe=df,
+    xlabel="År",
+    ylabel="Kvadratmeter",
+)
+ssb.create("figur-1", highchart)
+```
+
+Gjennomsnittlig boligareal per bolig i Norge har vært preget av langsomme, men jevne endringer over tid. I byene bygges det flere mindre boliger og leiligheter, mens i distriktene er eneboliger med større areal fortsatt vanlige. Endringer i demografi, økonomi og byggepraksis påvirker både den gjennomsnittlige boligarealstørrelsen og fordelingen av boligtyper.
+
+Figurene nedenfor viser eksempelvis utvikling over tid, hvordan gjennomsnittlig boligareal varierer mellom regioner, og andeler av boliger i ulike størrelseskategorier. Kodene under hver figur er eksempler som bruker pandas-dataframes som input og kan enkelt tilpasses egne datakilder.
+
+::: { #figur-1 .ssb }
+:::
+
+# Regionale forskjeller
+
+```{python}
+import pandas as pd
+data = {"region": ["Oslo", "Viken", "Vestland", "Trøndelag", "Nord-Norge", "Innlandet", "Agder"], "avg_size_sqm": [60, 90, 95, 100, 105, 98, 88]}
+df = pd.DataFrame(data)
+
+highchart = ssb.Highchart(
+    title="Figur 2. Gjennomsnittlig boligareal etter region/fylke. Kvadratmeter",
+    graph_type="column",
+    dataframe=df,
+    xlabel="Region/fylke",
+    ylabel="Kvadratmeter",
+)
+ssb.create("figur-2", highchart)
+```
+
+Det er tydelige forskjeller i boligareal mellom regioner. Store byområder har et større innslag av små leiligheter, noe som trekker ned gjennomsnittet, mens distriktskommuner ofte har større boliger. Disse forskjellene henger sammen med boligprisnivå, befolkningsstruktur og byggeaktivitet.
+
+I kartleggingsdata vil man ofte se at fylker med mange urbane pendlerområder har lavere gjennomsnittlig boligareal per boenhet enn fylker med mye spredt bebyggelse.
+
+::: { #figur-2 .ssb }
+:::
+
+# Fordeling av boliger etter størrelse
+
+```{python}
+import pandas as pd
+categories = ["<50", "50-75", "75-100", "100-150", ">150"]
+share_percent = [12, 25, 40, 18, 5]
+df = pd.DataFrame({"size_category": categories, "share_percent": share_percent})
+
+highchart = ssb.Highchart(
+    title="Figur 3. Andel boliger etter størrelseskategori",
+    graph_type="bar",
+    dataframe=df,
+    xlabel="Størrelseskategori",
+    ylabel="Prosent",
+)
+ssb.create("figur-3", highchart)
+```
+
+Fordelingen av boliger etter størrelse viser hvor stor andel som er små leiligheter, mellomstore boliger eller store eneboliger. Dette er viktig for planlegging av tjenester, energibruk og tilpasning til demografiske endringer.
+
+Etterspørsel etter mindre boliger kan øke i urbane områder med høy tetthet og unge husholdninger, mens etterspørselen etter større boliger ofte er høyere i områder med flere barnefamilier.
+
+::: { #figur-3 .ssb }
+:::
+
+# Konsekvenser og videre arbeid
+
+Endringer i boligareal påvirker boligpolitiske prioriteringer, energiberegninger og arealplanlegging. Mindre gjennomsnittlig boligareal i byene kan redusere energibruk per bolig, men øke behovet for flere boenheter. Større boliger i distriktene stiller andre krav til infrastruktur og tjenester.
+
+For videre analyser anbefales det å bruke oppdaterte datakilder på kommunenivå eller bydelelig nivå og å kombinere arealdata med informasjon om husholdningssammensetning og boligtype for å få et mer nyansert bilde.
+

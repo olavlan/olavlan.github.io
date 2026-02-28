@@ -2,8 +2,9 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/pydantic/generating-articles/1/index.html",
-      "/posts/pydantic/generating-articles/2/index.html"
+      "/programming/pydantic/generating-articles/1/index.html",
+      "/programming/pydantic/generating-articles/2/index.html",
+      "/programming/pydantic/generating-articles/3/index.html"
     ]
   }
 ]

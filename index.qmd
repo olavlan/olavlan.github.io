@@ -1,7 +1,7 @@
 ---
-title: "Blog posts"
+title: "Programming notes"
 listing:
-  contents: posts/**/index.{ipynb,qmd,md}
+  contents: programming/**/index.{ipynb,qmd,md}
   type: table
   fields: [title, categories]
   table-hover: true
@@ -15,4 +15,4 @@ listing:
 page-layout: full
 title-block-banner: true
 ---
-These are my blog posts. I try to write one every day.
+These are my programming notes. I try to write one every day.
