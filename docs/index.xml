@@ -10,7 +10,7 @@
 <atom:link href="https://olavlan.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>My notes about programming</description>
 <generator>quarto-1.8.26</generator>
-<lastBuildDate>Sat, 28 Feb 2026 18:10:35 GMT</lastBuildDate>
+<lastBuildDate>Sat, 28 Feb 2026 20:47:25 GMT</lastBuildDate>
 <item>
   <title>Generating articles with Pydantic AI (1)</title>
   <link>https://olavlan.github.io/programming/pydantic/generating-articles/1/</link>
@@ -299,7 +299,7 @@ font-style: inherit;">as</span> f:</span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/1/</guid>
-  <pubDate>Sat, 28 Feb 2026 18:10:35 GMT</pubDate>
+  <pubDate>Sat, 28 Feb 2026 20:47:25 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (2)</title>
@@ -1581,7 +1581,7 @@ font-style: inherit;">- </span>data/figur3.parquet (utbytte fra noterte aksjer o
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/2/</guid>
-  <pubDate>Sat, 28 Feb 2026 18:10:35 GMT</pubDate>
+  <pubDate>Sat, 28 Feb 2026 20:47:25 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (3)</title>
@@ -2817,7 +2817,7 @@ font-style: inherit;"># Konsekvenser og videre arbeid</span></span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/3/</guid>
-  <pubDate>Sat, 28 Feb 2026 18:10:35 GMT</pubDate>
+  <pubDate>Sat, 28 Feb 2026 20:47:25 GMT</pubDate>
 </item>
 </channel>
 </rss>
