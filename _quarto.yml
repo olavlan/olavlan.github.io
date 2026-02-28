@@ -1,17 +1,15 @@
 project:
-  type: book
+  type: website
   output-dir: docs
 
-book:
+website:
   title: "Programming notes"
-  author: "Olav Landsverk"
-  date: "2/20/2026"
-  chapters:
-    - index.qmd
-    - part: chapters/pydantic-ai/index.md
-      chapters:
-        - chapters/pydantic-ai/first/agent.ipynb
-        - chapters/pydantic-ai/second/agent.ipynb
+  site-url: https://olavlan.github.io/
+  description: "My notes about programming"
+  navbar:
+    right:
+      - icon: github
+        href: https://github.com/olavlan/olavlan.github.io
 
 execute: 
   echo: true

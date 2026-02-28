@@ -1,0 +1,118 @@
+---
+ssb:
+    path:
+    title: "Analyse av klimadata: Temperatur og CO2 over tid"
+    authors:
+        - name: Fornavn Etternavn
+          email: ---.ssb@no
+    ingress: "En statistisk gjennomgang av årsserier for global temperatur og atmosfærisk CO2 basert på en enkel CSV med kolonnene 'year', 'temperature' og 'co2'. Artikkelen forklarer metode, tolker sammenhenger og viser en interaktiv figur (Highcharts) som plottes fra Pandas-dataframen."
+---
+```{python}
+import ssb_pubmd as ssb
+```
+```{python}
+import pandas as pd
+
+# Bytt ut filnavn med din CSV-fil
+# For eksempel: df = pd.read_csv('climate_data.csv')
+df = pd.read_csv('data.csv')
+
+# Sørg for riktige datatyper og rydd opp
+df['year'] = pd.to_numeric(df['year'], errors='coerce')
+df['temperature'] = pd.to_numeric(df['temperature'], errors='coerce')
+df['co2'] = pd.to_numeric(df['co2'], errors='coerce')
+
+# Fjern rader uten år og sorter
+df = df.dropna(subset=['year'])
+df = df.sort_values('year').reset_index(drop=True)
+
+# Final dataframe som brukes i highchart
+# df skal inneholde kolonnene: 'year', 'temperature', 'co2'
+
+
+highchart = ssb.Highchart(
+    title="Temperatur og CO2 over tid",
+    graph_type="line",
+    dataframe=df,
+    xlabel="År",
+    ylabel="Verdi (temp / CO2)",
+)
+ssb.create("hc:climate1", highchart)
+```
+
+```{python}
+factbox = ssb.Factbox(
+    title="Fakta om datasettet",
+    display_type="sneakPeek",
+)
+ssb.create("fb:climate_facts", factbox)
+```
+
+Introduksjon
+
+Klimatrender kan studeres ved hjelp av tidsserier for både temperatur og konsentrasjon av karbondioksid (CO2). Denne artikkelen viser hvordan du kan analysere et enkelt datasett (kolonner: year, temperature, co2), hvilke statistiske metoder som er nyttige, og presenterer en visualisering av begge seriene over tid.
+
+Datagrunnlag
+
+Datasettet forventes å være en CSV-fil med kolonnene:
+- year: årstall (heltall eller årsverdi)
+- temperature: årlig middeltemperatur (samme enhet gjennom filen)
+- co2: årlig middelverdi av atmosfærisk CO2 (for eksempel ppm)
+
+Husk å sjekke at verdier mangler eller er kodet som tekst — vi viser et eksempel på hvordan du laster filen med pandas under figuren.
+
+::: { #hc:climate1 .ssb }
+:::
+
+::: { #fb:climate_facts .ssb }
+- Kolonner: year, temperature, co2
+- Forvent konsistent enhet for temperatur (f.eks. °C) og CO2 (f.eks. ppm).
+- Sjekk for manglende data og år uten observasjoner.
+- Vanlige analyser: lineær trend (polyfit), bevegelig gjennomsnitt, korrelasjon mellom temperatur og CO2.
+:::
+
+Metode og statistiske analyser
+
+1) Trendestimat (lineær):
+Et enkelt første steg er å estimere en lineær trend for temperaturen over tid. Et raskt eksempel med numpy:
+
+import numpy as np
+x = df['year'].values
+y = df['temperature'].values
+coef = np.polyfit(x, y, 1)  # coef[0] er stigning, coef[1] er intercept
+stigning = coef[0]
+
+Tolkning: En positiv stigning indikerer at den årlige temperaturen øker over perioden. Stigningens enhet er temperatur-enhet per år.
+
+2) Korrelasjon mellom temperatur og CO2:
+
+r = df['temperature'].corr(df['co2'])
+
+r nær 1: sterk positiv lineær sammenheng. Vær obs: korrelasjon er ikke årsakssammenheng.
+
+3) Robusthet og sesong/ikke-linearitet:
+- Sjekk for ikke-lineære trender (polynom, glidende gjennomsnitt, eller splines).
+- Undersøk residualer og autokorrelasjon (f.eks. Durbin-Watson) for å vurdere avhengighet mellom påfølgende år.
+
+Resultater og tolkning (generelle anbefalinger)
+
+- Visuell inspeksjon: Plott både temperatur og CO2 i samme figur for å se felles utvikling (skal være tydelig i Highchart-figuren ovenfor).
+- Kvantitativt: Rapporter trendens størrelse (f.eks. °C per tiår) og konfidensintervall hvis du estimerer med mer formelle regresjonsmetoder.
+- Korrelasjon gir en rask indikasjon på sammenheng, men bruk regresjon og vurder tidsseriediagnostikk for mer robuste konklusjoner.
+
+Begrensninger: kort tidsserie, måleusikkerhet, og potensielle strukturelle brudd i data påvirker tolkningene.
+
+Kode for videre analyser
+
+Eksempel — lineær regresjon med statsmodels for å få standardfeil og konfidensintervaller:
+
+import statsmodels.api as sm
+X = sm.add_constant(df['year'])
+model = sm.OLS(df['temperature'], X, missing='drop').fit()
+print(model.summary())
+
+Dette gir estimater, standardfeil og statistisk signifikans for trend-termen.
+
+Konklusjon
+
+En enkel statistisk gjennomgang av en CSV med 'year', 'temperature' og 'co2' innebærer opprydding, visualisering og trend-/korrelasjonsanalyse. Highchart-figuren generert fra Pandas-dataframen gir en rask, interaktiv måte å utforske utviklingen i temperatur og CO2 over tid. For formelle konklusjoner bør man utføre robuste tidsserieanalyser og vurdere flere datakilder.

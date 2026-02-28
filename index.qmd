@@ -1,5 +1,18 @@
-# Preface {.unnumbered}
+---
+title: "Blog posts"
+listing:
+  contents: posts/**/index.{ipynb,qmd,md}
+  type: table
+  fields: [title, categories]
+  table-hover: true
+  table-striped: true
+  feed: true
+  categories: true
+  sort-ui: false
+  filter-ui: false
 
-This is a Quarto book.
-
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+    
+page-layout: full
+title-block-banner: true
+---
+These are my blog posts. I try to write one every day.
