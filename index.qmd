@@ -1,18 +1,1 @@
----
-title: "Programming notes"
-listing:
-  contents: programming/**/index.{ipynb,qmd,md}
-  type: table
-  fields: [title, categories]
-  table-hover: true
-  table-striped: true
-  feed: true
-  categories: true
-  sort-ui: false
-  filter-ui: false
-
-    
-page-layout: full
-title-block-banner: true
----
-These are my programming notes. I try to write one every day.
+Here I write about things that interest me and things I want to learn.

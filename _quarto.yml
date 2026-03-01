@@ -3,11 +3,16 @@ project:
   output-dir: docs
 
 website:
-  title: "Programming notes"
+  title: "Blog"
   site-url: https://olavlan.github.io/
   description: "My notes about programming"
   navbar:
+    background: "#40a02b"
     right:
+      - text: Programming
+        href: programming/index.qmd
+      - text: Books
+        href: books/index.qmd
       - icon: github
         href: https://github.com/olavlan/olavlan.github.io
 
@@ -24,7 +29,6 @@ highlight-style: mocha.theme
 bibliography: references.bib
 
 page-layout: full
-
 
 format:
   html:

@@ -1,11 +1,15 @@
 [
   {
-    "listing": "/index.html",
+    "listing": "/books/index.html",
+    "items": []
+  },
+  {
+    "listing": "/programming/index.html",
     "items": [
-      "/programming/pydantic/generating-articles/1/index.html",
-      "/programming/pydantic/generating-articles/2/index.html",
+      "/programming/pydantic/generating-articles/4/index.html",
       "/programming/pydantic/generating-articles/3/index.html",
-      "/programming/pydantic/generating-articles/4/index.html"
+      "/programming/pydantic/generating-articles/2/index.html",
+      "/programming/pydantic/generating-articles/1/index.html"
     ]
   }
 ]

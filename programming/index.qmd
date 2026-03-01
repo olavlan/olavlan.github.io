@@ -1,0 +1,20 @@
+---
+title: "Programming notes"
+listing:
+  contents: "**/index.{ipynb,qmd,md}"
+  type: table
+  fields: [date, title]
+  sort: date desc
+  date-format: medium
+  table-hover: true
+  table-striped: true
+  feed: true
+  categories: true
+  sort-ui: false
+  filter-ui: false
+
+    
+page-layout: full
+title-block-banner: true
+---
+Here I document my attempts to learn programming concepts and tools that interest me.
