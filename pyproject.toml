@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "jupyter>=1.1.1",
+    "polars>=1.38.1",
     "pydantic-ai-slim[openai]>=1.62.0",
     "ssb-pubmd>=0.1.11",
 ]

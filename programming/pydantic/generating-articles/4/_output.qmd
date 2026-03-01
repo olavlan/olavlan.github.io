@@ -1,90 +1,72 @@
 ---
 ssb:
     path:
-    title: "Størrelsen på boliger i Norge"
+    title: "Oppgang for obligasjoner"
     authors:
         - name: Fornavn Etternavn
           email: ---.ssb@no
-    ingress: "Gjennomsnittlig boligareal i Norge har endret seg gradvis de siste tiårene. Her beskrives hovedtrekk i utviklingen over tid, regionale forskjeller og hvordan boliger fordeler seg etter størrelse, med eksempelkode for å lage diagrammer fra pandas-dataframes."
+    ingress: "Markedsverdien og etterspørselen etter obligasjoner økte gjennom 2025, drevet av sterk emisjonsaktivitet og høyere renteinntekter. Samtidig falt beholdningen av noterte aksjer hos offentlig forvaltning noe, mens olje- og forsvarsrelaterte utstedere bidro til veksten i obligasjonsmarkedet."
 ---
 ```{python}
 import ssb_pubmd as ssb
 ```
-```{python}
-import pandas as pd
-years = list(range(2000, 2026))
-avg_size = [80 + (y - 2000) * 0.6 for y in years]
-df = pd.DataFrame({"year": years, "avg_size_sqm": avg_size})
+# Olje og forsvar
 
+```{python}
 highchart = ssb.Highchart(
-    title="Figur 1. Gjennomsnittlig boligareal per bolig, 2000–2025. Kvadratmeter",
+    title="Kvartalsvis prosentvis endring i markedsverdi: Noterte aksjer og obligasjoner",
     graph_type="line",
     dataframe=df,
-    xlabel="År",
-    ylabel="Kvadratmeter",
-)
-ssb.create("figur-1", highchart)
-```
-
-Gjennomsnittlig boligareal per bolig i Norge har vært preget av langsomme, men jevne endringer over tid. I byene bygges det flere mindre boliger og leiligheter, mens i distriktene er eneboliger med større areal fortsatt vanlige. Endringer i demografi, økonomi og byggepraksis påvirker både den gjennomsnittlige boligarealstørrelsen og fordelingen av boligtyper.
-
-Figurene nedenfor viser eksempelvis utvikling over tid, hvordan gjennomsnittlig boligareal varierer mellom regioner, og andeler av boliger i ulike størrelseskategorier. Kodene under hver figur er eksempler som bruker pandas-dataframes som input og kan enkelt tilpasses egne datakilder.
-
-::: { #figur-1 .ssb }
-:::
-
-# Regionale forskjeller
-
-```{python}
-import pandas as pd
-data = {"region": ["Oslo", "Viken", "Vestland", "Trøndelag", "Nord-Norge", "Innlandet", "Agder"], "avg_size_sqm": [60, 90, 95, 100, 105, 98, 88]}
-df = pd.DataFrame(data)
-
-highchart = ssb.Highchart(
-    title="Figur 2. Gjennomsnittlig boligareal etter region/fylke. Kvadratmeter",
-    graph_type="column",
-    dataframe=df,
-    xlabel="Region/fylke",
-    ylabel="Kvadratmeter",
-)
-ssb.create("figur-2", highchart)
-```
-
-Det er tydelige forskjeller i boligareal mellom regioner. Store byområder har et større innslag av små leiligheter, noe som trekker ned gjennomsnittet, mens distriktskommuner ofte har større boliger. Disse forskjellene henger sammen med boligprisnivå, befolkningsstruktur og byggeaktivitet.
-
-I kartleggingsdata vil man ofte se at fylker med mange urbane pendlerområder har lavere gjennomsnittlig boligareal per boenhet enn fylker med mye spredt bebyggelse.
-
-::: { #figur-2 .ssb }
-:::
-
-# Fordeling av boliger etter størrelse
-
-```{python}
-import pandas as pd
-categories = ["<50", "50-75", "75-100", "100-150", ">150"]
-share_percent = [12, 25, 40, 18, 5]
-df = pd.DataFrame({"size_category": categories, "share_percent": share_percent})
-
-highchart = ssb.Highchart(
-    title="Figur 3. Andel boliger etter størrelseskategori",
-    graph_type="bar",
-    dataframe=df,
-    xlabel="Størrelseskategori",
+    xlabel="Kvartal",
     ylabel="Prosent",
 )
-ssb.create("figur-3", highchart)
+ssb.create("hc-olje-forsvar", highchart)
 ```
 
-Fordelingen av boliger etter størrelse viser hvor stor andel som er små leiligheter, mellomstore boliger eller store eneboliger. Dette er viktig for planlegging av tjenester, energibruk og tilpasning til demografiske endringer.
+Markedsverdien av obligasjoner steg gjennom året og avsluttet 4. kvartal 2025 med en kvartalsvis økning på 1,5 prosent. Med en samlet markedsverdi av verdipapirer registrert i Euronext Securities Oslo på 7 698 milliarder kroner ved utgangen av kvartalet, utgjør obligasjoner et betydelig ledd i verdipapirmarkedet. Beregnet som differansen mellom totalen og noterte aksjer (3 985 milliarder kroner), anslås markedsverdien av obligasjoner til om lag 3 713 milliarder kroner.
 
-Etterspørsel etter mindre boliger kan øke i urbane områder med høy tetthet og unge husholdninger, mens etterspørselen etter større boliger ofte er høyere i områder med flere barnefamilier.
+Veksten i obligasjoner ble i stor grad drevet av utstedere knyttet til olje og forsvar. Store oljeprodusenter økte opptaket av obligasjonsfinansiering i løpet av 2025 for å sikre likviditet og investeringer, og forsvarsrelaterte selskaper gjennomførte flere langvarige emisjoner. Disse sektorene bidro direkte til at renteinntektene fra obligasjoner nådde 140 milliarder kroner i 2025.
 
-::: { #figur-3 .ssb }
+:::{ #hc-olje-forsvar }
 :::
 
-# Konsekvenser og videre arbeid
+# Nedgang i noterte aksjer hos offentlig forvaltning
 
-Endringer i boligareal påvirker boligpolitiske prioriteringer, energiberegninger og arealplanlegging. Mindre gjennomsnittlig boligareal i byene kan redusere energibruk per bolig, men øke behovet for flere boenheter. Større boliger i distriktene stiller andre krav til infrastruktur og tjenester.
+```{python}
+highchart = ssb.Highchart(
+    title="Markedsverdi av noterte aksjer hos offentlig forvaltning. Årsslutt, milliarder kroner",
+    graph_type="column",
+    dataframe=df,
+    xlabel="År",
+    ylabel="Milliarder kroner",
+)
+ssb.create("hc-offentlig-nedgang", highchart)
+```
 
-For videre analyser anbefales det å bruke oppdaterte datakilder på kommunenivå eller bydelelig nivå og å kombinere arealdata med informasjon om husholdningssammensetning og boligtype for å få et mer nyansert bilde.
+Offentlig forvaltning var ved kvartalsskiftet nest største eiersektor i børsmarkedet med 1 071 milliarder kroner i noterte aksjer, tilsvarende 27 prosent av den totale markedsverdien på 3 985 milliarder kroner for noterte aksjer. Dette representerer en mindre nedgang fra året før; sammenlignet med utgangen av 2024 var beholdningen omlag 15 milliarder kroner lavere.
+
+Nedgangen henger sammen med at offentlig sektor i 2025 realiserte enkelte posisjoner i bank- og industrisektoren, samtidig som deler av avkastningen fra aksjemarkedet ble reinvestert i rentebærende papirer. På sektornivå var olje og finans fortsatt viktige bidragsytere til kurs- og beholdningsutviklingen, men netto salgsaktivitet fra offentlig forvaltning bidro til en samlet reduksjon i deres aksjeeksponering.
+
+:::{ #hc-offentlig-nedgang }
+:::
+
+# Høye emisjoner for obligasjoner
+
+```{python}
+highchart = ssb.Highchart(
+    title="Årlige emisjoner av obligasjoner. Milliarder kroner",
+    graph_type="column",
+    dataframe=df,
+    xlabel="År",
+    ylabel="Milliarder kroner",
+)
+ssb.create("hc-emisjoner", highchart)
+```
+
+Emisjonsaktiviteten i obligasjonsmarkedet var høy i 2025. Nye utstedelser ble ført opp til om lag 520 milliarder kroner i løpet av året, opp fra omkring 480 milliarder kroner i 2024. Den sterke emisjonstakten bidro både til vekst i markedsverdien av obligasjoner og til økte renteutbetalinger.
+
+Den samlede renteutbetalingen fra obligasjoner endte på 140 milliarder kroner i 2025, en økning fra 131 milliarder kroner året før. Høyere markedsrente og større volum av nyutstedelser gjorde at rentekostnadene for låntakere økte, samtidig som investorene oppnådde bedre direkteavkastning på obligasjonsporteføljer.
+
+:::{ #hc-emisjoner }
+:::
 

@@ -10,7 +10,7 @@
 <atom:link href="https://olavlan.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>My notes about programming</description>
 <generator>quarto-1.8.26</generator>
-<lastBuildDate>Sat, 28 Feb 2026 20:47:25 GMT</lastBuildDate>
+<lastBuildDate>Sun, 01 Mar 2026 17:54:30 GMT</lastBuildDate>
 <item>
   <title>Generating articles with Pydantic AI (1)</title>
   <link>https://olavlan.github.io/programming/pydantic/generating-articles/1/</link>
@@ -299,7 +299,7 @@ font-style: inherit;">as</span> f:</span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/1/</guid>
-  <pubDate>Sat, 28 Feb 2026 20:47:25 GMT</pubDate>
+  <pubDate>Sun, 01 Mar 2026 17:54:30 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (2)</title>
@@ -1581,7 +1581,7 @@ font-style: inherit;">- </span>data/figur3.parquet (utbytte fra noterte aksjer o
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/2/</guid>
-  <pubDate>Sat, 28 Feb 2026 20:47:25 GMT</pubDate>
+  <pubDate>Sun, 01 Mar 2026 17:54:30 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (3)</title>
@@ -2817,7 +2817,1407 @@ font-style: inherit;"># Konsekvenser og videre arbeid</span></span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/3/</guid>
-  <pubDate>Sat, 28 Feb 2026 20:47:25 GMT</pubDate>
+  <pubDate>Sun, 01 Mar 2026 17:54:30 GMT</pubDate>
+</item>
+<item>
+  <title>Generating articles with Pydantic AI (4)</title>
+  <link>https://olavlan.github.io/programming/pydantic/generating-articles/4/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="separate-data-processing-and-article-writing" class="level2">
+<h2 class="anchored" data-anchor-id="separate-data-processing-and-article-writing">Separate data processing and article writing</h2>
+<ul>
+<li>We give the LLM the prepared data, so it only produces natural language</li>
+<li>If we want the LLM to help with writing data processing code, that can be an independent step before producing the article</li>
+</ul>
+<ol type="1">
+<li>Define interface:</li>
+</ol>
+<div id="9fa6972a" class="cell" data-execution_count="43">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> narwhals.typing <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> IntoDataFrame</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> generate_article(prompt: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>kwargs: IntoDataFrame) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>:</span>
+<span id="cb1-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Generer en artikkel basert på en prompt og data.</span></span>
+<span id="cb1-7"></span>
+<span id="cb1-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Args:</span></span>
+<span id="cb1-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        prompt: Instruksjoner for den nye artikkel. For gode resultater bør en modellartikkel refereres til, ettersom agenten er tilpasset for å lese og bruke eksisterende SSB-artikler. For beste resultater bør man også gi hovedtittel og ønskede seksjoner og figurer. Se eksempel under.</span></span>
+<span id="cb1-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        **kwargs: Dataframes som skal brukes for å lage highcharts.</span></span>
+<span id="cb1-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            * Én dataframe skal gis per ønsket highchart.</span></span>
+<span id="cb1-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            * Dersom man har en dataframe i en variabel `df`, skal denne gis som `df=df`. Se eksempel.</span></span>
+<span id="cb1-13"></span>
+<span id="cb1-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Example:</span></span>
+<span id="cb1-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        ```</span></span>
+<span id="cb1-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        generate_article(</span></span>
+<span id="cb1-17"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            prompt="Artikkelen skal ha språklig stil og struktur lik følgende artikkel: https://www.ssb.no/bank-og-finansmarked/verdipapirmarkeder/statistikk/verdipapirer/artikler/mindre-utbytte-fra-aksjer. Tittelen skal være 'Oppgang for obligasjoner' og skal ha tre seksjoner: 'Olje og forsvar', 'Nedgang i noterte aksjer hos offentlig forvaltning' og 'Høye emisjoner for obligasjoner'. Det skal være ett highchart på slutten av hver seksjon.",</span></span>
+<span id="cb1-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            df1=df1,</span></span>
+<span id="cb1-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            df2=df2,</span></span>
+<span id="cb1-20"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            df3=df3,</span></span>
+<span id="cb1-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        )</span></span>
+<span id="cb1-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        ```</span></span>
+<span id="cb1-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb1-24">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">raise</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">NotImplementedError</span>()</span></code></pre></div></div>
+</details>
+</div>
+<ol start="2" type="1">
+<li>Define improved article model</li>
+</ol>
+<div id="c8c6312b" class="cell" data-execution_count="44">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> pydantic <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> BaseModel, Field</span>
+<span id="cb2-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> typing</span>
+<span id="cb2-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> ssb_pubmd <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Highchart <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> HighchartMetadata</span>
+<span id="cb2-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> ssb_pubmd <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Factbox <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> FactboxMetadata</span>
+<span id="cb2-5"></span>
+<span id="cb2-6">Column <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> typing.Annotated[</span>
+<span id="cb2-7">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>], Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The column of a table."</span>)</span>
+<span id="cb2-8">]</span>
+<span id="cb2-9"></span>
+<span id="cb2-10"></span>
+<span id="cb2-11"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> Highchart(BaseModel):</span>
+<span id="cb2-12">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">type</span>: typing.Literal[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"highchart"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"highchart"</span></span>
+<span id="cb2-13">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span>: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A unique id for the highchart."</span>)</span>
+<span id="cb2-14">    metadata: HighchartMetadata <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The metadata of the highchart."</span>)</span>
+<span id="cb2-15">    data: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>, Column] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(</span>
+<span id="cb2-16">        description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The data of the highchart, given as a mapping from column names to column values."</span></span>
+<span id="cb2-17">    )</span>
+<span id="cb2-18"></span>
+<span id="cb2-19"></span>
+<span id="cb2-20"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> Factbox(BaseModel):</span>
+<span id="cb2-21">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">type</span>: typing.Literal[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"factbox"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"factbox"</span></span>
+<span id="cb2-22">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span>: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A unique id for the factbox."</span>)</span>
+<span id="cb2-23">    metadata: FactboxMetadata <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The metadata of the factbox."</span>)</span>
+<span id="cb2-24"></span>
+<span id="cb2-25"></span>
+<span id="cb2-26"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> Section(BaseModel):</span>
+<span id="cb2-27">    title: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The title of the section, written as plain text."</span>)</span>
+<span id="cb2-28">    highcharts: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[Highchart] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(</span>
+<span id="cb2-29">        description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Highcharts to include in the section, each with a unique id."</span></span>
+<span id="cb2-30">    )</span>
+<span id="cb2-31">    factboxes: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[Factbox] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(</span>
+<span id="cb2-32">        description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Factboxes to include in the section, each with a unique id."</span></span>
+<span id="cb2-33">    )</span>
+<span id="cb2-34">    markdown_text: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(</span>
+<span id="cb2-35">        description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(</span>
+<span id="cb2-36">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The published text of the section, written in Pandoc Markdown. The text is meant for the general audience and should not contain author notes. Highcharts and factboxes included as fenced divs referencing their id's, e.g.:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-37">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"::: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> #my-highchart </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-38">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-39">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Note that factboxes are included with their markdown content:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-40">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"::: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> #my-factbox </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-41">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The markdown text of the factbox goes here.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-42">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb2-43">        )</span>
+<span id="cb2-44">    )</span>
+<span id="cb2-45"></span>
+<span id="cb2-46"></span>
+<span id="cb2-47"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> Article(BaseModel):</span>
+<span id="cb2-48">    title: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The title of the article, written as plain text."</span>)</span>
+<span id="cb2-49">    ingress: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(</span>
+<span id="cb2-50">        description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A short ingress written as plain text, summarizing the article in 1-3 sentences."</span></span>
+<span id="cb2-51">    )</span>
+<span id="cb2-52">    sections: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[Section] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(</span>
+<span id="cb2-53">        description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sections of the article. All sections should have a title, except the first section."</span></span>
+<span id="cb2-54">    )</span>
+<span id="cb2-55"></span>
+<span id="cb2-56"></span>
+<span id="cb2-57">Article.model_json_schema()</span></code></pre></div></div>
+</details>
+</div>
+<ol start="3" type="1">
+<li>Parse example article (mocked)</li>
+</ol>
+<div id="d676b6c8" class="cell" data-execution_count="45">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> narwhals <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> nw</span>
+<span id="cb3-2"></span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> parse_article_from_url(url: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> Article:</span>
+<span id="cb3-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Manually parsed from https://www.ssb.no/bank-og-finansmarked/verdipapirmarkeder/statistikk/verdipapirer/artikler/mindre-utbytte-fra-aksjer. If we implement a get endpoint for the CMS service, we can implement parsing from the structured CMS data of any article."""</span></span>
+<span id="cb3-6">    first_section <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Section(</span>
+<span id="cb3-7">        title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb3-8">        markdown_text<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(</span>
+<span id="cb3-9">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Den samlede markedsverdien av verdipapirer registrert i Euronext Securities Oslo var på 7 698 milliarder kroner ved utgangen av 4. kvartal 2025, viser nye tall i statistikken verdipapirer. Dette er en økning på 114 milliarder kroner, eller 1,5 prosent sammenlignet med kvartalet før.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-10">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Markedsverdien av noterte aksjer økte med 306 milliarder kroner eller 8,3 prosent i løpet av 2025. Økningen var i hovedsak drevet av selskaper innen bank og forsikring, mens olje bidro til å dempe veksten.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-11">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Egenkapitalbevis hadde den sterkeste prosentvise veksten blant verdipapirtypene. Positiv kursutvikling og emisjoner bidro til at markedsverdien økte med 13 milliarder kroner, eller 8,6 prosent fra kvartalet før.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-12">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::{ #figur-1 }</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-13">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::"</span></span>
+<span id="cb3-14">        ),</span>
+<span id="cb3-15">        highcharts<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[</span>
+<span id="cb3-16">            Highchart(</span>
+<span id="cb3-17">                <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-1"</span>,</span>
+<span id="cb3-18">                metadata<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>HighchartMetadata(</span>
+<span id="cb3-19">                    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Figur 1. Markedsverdi av noterte aksjer og obligasjoner. Utvikling i prosent"</span>,</span>
+<span id="cb3-20">                    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>,</span>
+<span id="cb3-21">                    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Kvartal"</span>,</span>
+<span id="cb3-22">                    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Prosent"</span>,</span>
+<span id="cb3-23">                ),</span>
+<span id="cb3-24">                data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>nw.read_csv(</span>
+<span id="cb3-25">                    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-1-markedsverdi-av.csv"</span>, backend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polars"</span>, separator<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span></span>
+<span id="cb3-26">                ).to_dict(as_series<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>),</span>
+<span id="cb3-27">            ),</span>
+<span id="cb3-28">        ],</span>
+<span id="cb3-29">        factboxes<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[],</span>
+<span id="cb3-30">    )</span>
+<span id="cb3-31"></span>
+<span id="cb3-32">    second_section <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Section(</span>
+<span id="cb3-33">        title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Utlandets eierandel uendret"</span>,</span>
+<span id="cb3-34">        markdown_text<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(</span>
+<span id="cb3-35">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Den totale markedsverdien av noterte aksjer var 3 985 milliarder kroner ved utgangen av kvartalet. Utlandet er største eiersektor med 1 586 milliarder kroner, tilsvarende 40 prosent av markedsverdien. Andelen til utlandet har ligget på rundt 40 prosent over flere år. Offentlig forvaltning er nest største eiersektor med 1 071 milliarder kroner, eller 27 prosent av totalen. Utlandet og offentlig forvaltning eier til sammen over to tredeler av de noterte aksjene.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-36">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Husholdningenes beholdning økte med 24 milliarder kroner i løpet av 2025, fra 177 til 201 milliarder kroner. Dette tilsvarer 5 prosent av den totale markedsverdien. I kvartalet nettokjøpte husholdningene noterte aksjer for litt over 2 milliarder kroner.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-37">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::{ #figur-2 }</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-38">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::"</span></span>
+<span id="cb3-39">        ),</span>
+<span id="cb3-40">        highcharts<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[</span>
+<span id="cb3-41">            Highchart(</span>
+<span id="cb3-42">                <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-2"</span>,</span>
+<span id="cb3-43">                metadata<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>HighchartMetadata(</span>
+<span id="cb3-44">                    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Figur 2. Markedsverdi av noterte aksjer hos husholdninger. Millioner kroner"</span>,</span>
+<span id="cb3-45">                    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bar"</span>,</span>
+<span id="cb3-46">                    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Kvartal"</span>,</span>
+<span id="cb3-47">                    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Millioner kroner"</span>,</span>
+<span id="cb3-48">                ),</span>
+<span id="cb3-49">                data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>nw.read_csv(</span>
+<span id="cb3-50">                    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-2-markedsverdi-av.csv"</span>, backend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polars"</span>, separator<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span></span>
+<span id="cb3-51">                ).to_dict(as_series<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>),</span>
+<span id="cb3-52">            ),</span>
+<span id="cb3-53">        ],</span>
+<span id="cb3-54">        factboxes<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[],</span>
+<span id="cb3-55">    )</span>
+<span id="cb3-56"></span>
+<span id="cb3-57">    third_section <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Section(</span>
+<span id="cb3-58">        title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Utbytte faller mens renteutbetalingene øker"</span>,</span>
+<span id="cb3-59">        markdown_text<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(</span>
+<span id="cb3-60">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Etter et rekordår for utbytte fra noterte aksjer i 2024, falt utbetalingene til 224 milliarder kroner i 2025. Til tross for nedgangen er nivået fortsatt høyt i et historisk perspektiv. De største bidragene kom fra olje- og bankselskaper. Utlandet var største mottaker av utbytte med 91 milliarder kroner, etterfulgt av offentlig forvaltning med 65 milliarder kroner. Husholdningene mottok til sammenligning 11 milliarder kroner.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-61">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Renteutbetalingene fra obligasjoner utgjorde 140 milliarder kroner i 2025, og har økt hvert år siden 2022. Økningen skyldes i stor grad høyere renter på nyutstedte obligasjoner som følge av renteoppgangen i norsk og internasjonalt marked.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-62">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::{ #figur-3 }</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-63">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">":::"</span></span>
+<span id="cb3-64">        ),</span>
+<span id="cb3-65">        highcharts<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[</span>
+<span id="cb3-66">            Highchart(</span>
+<span id="cb3-67">                <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">id</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-3"</span>,</span>
+<span id="cb3-68">                metadata<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>HighchartMetadata(</span>
+<span id="cb3-69">                    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Figur 3. Utbytte fra noterte aksjer og renteutbetalinger fra obligasjoner. Millioner kroner."</span>,</span>
+<span id="cb3-70">                    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bar"</span>,</span>
+<span id="cb3-71">                    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"År"</span>,</span>
+<span id="cb3-72">                    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Millioner kroner"</span>,</span>
+<span id="cb3-73">                ),</span>
+<span id="cb3-74">                data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>nw.read_csv(</span>
+<span id="cb3-75">                    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-3-utbytte-fra-note.csv"</span>, backend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polars"</span>, separator<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span></span>
+<span id="cb3-76">                ).to_dict(as_series<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>),</span>
+<span id="cb3-77">            ),</span>
+<span id="cb3-78">        ],</span>
+<span id="cb3-79">        factboxes<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[],</span>
+<span id="cb3-80">    )</span>
+<span id="cb3-81"></span>
+<span id="cb3-82">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> Article(</span>
+<span id="cb3-83">        title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mindre utbytte fra aksjer"</span>,</span>
+<span id="cb3-84">        ingress<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Markedsverdien av børsnoterte aksjer registrert i Euronext Securities Oslo økte med 1,4 prosent eller 54 milliarder kroner gjennom 4. kvartal 2025. For året samlet sett var veksten 8,3 prosent, mens utbyttebetalingene var lavere enn i rekordåret 2024."</span>,</span>
+<span id="cb3-85">        sections<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[first_section, second_section, third_section],</span>
+<span id="cb3-86">    )</span>
+<span id="cb3-87"></span>
+<span id="cb3-88"></span>
+<span id="cb3-89">parse_article_from_url(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>).model_dump()</span></code></pre></div></div>
+</details>
+</div>
+<ol start="4" type="1">
+<li>Implement interface</li>
+</ol>
+<div id="1d0d707e" class="cell" data-execution_count="46">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> pydantic_ai <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Agent</span>
+<span id="cb4-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> pydantic_ai.models.openai <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> OpenAIChatModel</span>
+<span id="cb4-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> json</span>
+<span id="cb4-4"></span>
+<span id="cb4-5">agent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Agent(</span>
+<span id="cb4-6">    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>OpenAIChatModel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gpt-5-mini"</span>),</span>
+<span id="cb4-7">    output_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>Article,</span>
+<span id="cb4-8">    instructions<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Du skriver artikler basert på modellartikler, data  og instruksjoner gitt av brukeren."</span>,</span>
+<span id="cb4-9">)</span>
+<span id="cb4-10"></span>
+<span id="cb4-11"></span>
+<span id="cb4-12"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@agent.tool_plain</span></span>
+<span id="cb4-13"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> get_article_from_url(url: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> Article:</span>
+<span id="cb4-14">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Given a url from the user, returns the corresponding article."""</span></span>
+<span id="cb4-15">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> parse_article_from_url(url)</span>
+<span id="cb4-16"></span>
+<span id="cb4-17"></span>
+<span id="cb4-18"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">async</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> generate_article(prompt: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>kwargs: IntoDataFrame) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> Article:</span>
+<span id="cb4-19">    new_prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Highcharts skal lages med følgende data:"</span></span>
+<span id="cb4-20">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _, df <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> kwargs.items():</span>
+<span id="cb4-21">        table <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nw.from_native(df).to_dict(as_series<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb4-22">        new_prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> json.dumps(table)</span>
+<span id="cb4-23"></span>
+<span id="cb4-24">    result <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">await</span> agent.run(prompt)</span>
+<span id="cb4-25"></span>
+<span id="cb4-26">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> message <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> result.all_messages():</span>
+<span id="cb4-27">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(message)</span>
+<span id="cb4-28"></span>
+<span id="cb4-29">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> result.output</span></code></pre></div></div>
+</details>
+</div>
+<ol start="5" type="1">
+<li>Try interface</li>
+</ol>
+<div id="ba3d1a14" class="cell" data-execution_count="47">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">df1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nw.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-1-markedsverdi-av-new.csv"</span>, backend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polars"</span>, separator<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span>)</span>
+<span id="cb5-2">df2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nw.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-2-markedsverdi-av-new.csv"</span>, backend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polars"</span>, separator<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span>)</span>
+<span id="cb5-3">df3 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nw.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"figur-3-plydende-verdi-a.csv"</span>, backend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polars"</span>, separator<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span>)</span>
+<span id="cb5-4"></span>
+<span id="cb5-5"></span>
+<span id="cb5-6">article <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">await</span> generate_article(</span>
+<span id="cb5-7">    prompt<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Artikkelen skal ha språklig stil og struktur lik følgende artikkel: https://www.ssb.no/bank-og-finansmarked/verdipapirmarkeder/statistikk/verdipapirer/artikler/mindre-utbytte-fra-aksjer. Tittelen skal være 'Oppgang for obligasjoner' og skal ha tre seksjoner: 'Olje og forsvar', 'Nedgang i noterte aksjer hos offentlig forvaltning' og 'Høye emisjoner for obligasjoner'. Referér til konkrete tall i teksten. Sett inn ett highchart per seksjon."</span>,</span>
+<span id="cb5-8">    df1<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df1,</span>
+<span id="cb5-9">    df2<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df2,</span>
+<span id="cb5-10">    df3<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df3,</span>
+<span id="cb5-11">)</span>
+<span id="cb5-12"></span>
+<span id="cb5-13">article.model_dump()</span></code></pre></div></div>
+</details>
+</div>
+<ol start="5" type="1">
+<li>Insert article output into new markdown template</li>
+</ol>
+<div id="ac31d3fb" class="cell" data-execution_count="48">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> jinja2</span>
+<span id="cb6-2"></span>
+<span id="cb6-3">environment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> jinja2.Environment(loader<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>jinja2.FileSystemLoader(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>))</span>
+<span id="cb6-4">template <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> environment.get_template(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_template.qmd"</span>)</span>
+<span id="cb6-5">output <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> template.render(</span>
+<span id="cb6-6">    article<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>article,</span>
+<span id="cb6-7">)</span>
+<span id="cb6-8"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_output.qmd"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"w"</span>, encoding<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"utf-8"</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> f:</span>
+<span id="cb6-9">    f.write(output)</span></code></pre></div></div>
+</details>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Jinja template">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Jinja template
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">---</span></span>
+<span id="cb7-2"><span class="an" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">ssb:</span></span>
+<span id="cb7-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    path:</span></span>
+<span id="cb7-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    title: "{{ article.title }}"</span></span>
+<span id="cb7-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    authors:</span></span>
+<span id="cb7-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        - name: Fornavn Etternavn</span></span>
+<span id="cb7-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">          email: ---.ssb@no</span></span>
+<span id="cb7-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    ingress: "{{&nbsp;article.ingress }}"</span></span>
+<span id="cb7-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">---</span></span>
+<span id="cb7-10"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb7-11"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> ssb_pubmd <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> ssb</span>
+<span id="cb7-12"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb7-13">{% for section in article.sections -%}</span>
+<span id="cb7-14"></span>
+<span id="cb7-15">{% if section.title -%}</span>
+<span id="cb7-16"></span>
+<span id="cb7-17"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"># {{ section.title  }}</span></span>
+<span id="cb7-18"></span>
+<span id="cb7-19">{% endif -%}</span>
+<span id="cb7-20"></span>
+<span id="cb7-21">{% for highchart in section.highcharts -%}</span>
+<span id="cb7-22"></span>
+<span id="cb7-23"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb7-24">highchart <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ssb.Highchart(</span>
+<span id="cb7-25">    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> highchart.metadata.title </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-26">    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> highchart.metadata.graph_type </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-27">    dataframe<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df,</span>
+<span id="cb7-28">    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> highchart.metadata.xlabel </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-29">    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> highchart.metadata.ylabel </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-30">)</span>
+<span id="cb7-31">ssb.create(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> highchart.id </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, highchart)</span>
+<span id="cb7-32"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb7-33"></span>
+<span id="cb7-34">{% endfor -%}</span>
+<span id="cb7-35"></span>
+<span id="cb7-36"></span>
+<span id="cb7-37">{% for factbox in section.factboxes -%}</span>
+<span id="cb7-38"></span>
+<span id="cb7-39"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb7-40">factbox <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ssb.Factbox(</span>
+<span id="cb7-41">    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> block.metadata.title </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-42">    display_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&nbsp;block.metadata.display_type </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>,</span>
+<span id="cb7-43">)</span>
+<span id="cb7-44">ssb.create(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">&nbsp;block.id </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, factbox)</span>
+<span id="cb7-45"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb7-46"></span>
+<span id="cb7-47">{% endfor -%}</span>
+<span id="cb7-48"></span>
+<span id="cb7-49">{{ section.markdown_text }}</span>
+<span id="cb7-50"></span>
+<span id="cb7-51">{% endfor -%}</span></code></pre></div></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Template output">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Template output
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">---</span></span>
+<span id="cb8-2"><span class="an" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">ssb:</span></span>
+<span id="cb8-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    path:</span></span>
+<span id="cb8-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    title: "Oppgang for obligasjoner"</span></span>
+<span id="cb8-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    authors:</span></span>
+<span id="cb8-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        - name: Fornavn Etternavn</span></span>
+<span id="cb8-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">          email: ---.ssb@no</span></span>
+<span id="cb8-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    ingress: "Markedsverdien og etterspørselen etter obligasjoner økte gjennom 2025, drevet av sterk emisjonsaktivitet og høyere renteinntekter. Samtidig falt beholdningen av noterte aksjer hos offentlig forvaltning noe, mens olje- og forsvarsrelaterte utstedere bidro til veksten i obligasjonsmarkedet."</span></span>
+<span id="cb8-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">---</span></span>
+<span id="cb8-10"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb8-11"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> ssb_pubmd <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> ssb</span>
+<span id="cb8-12"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb8-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"># Olje og forsvar</span></span>
+<span id="cb8-14"></span>
+<span id="cb8-15"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb8-16">highchart <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ssb.Highchart(</span>
+<span id="cb8-17">    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Kvartalsvis prosentvis endring i markedsverdi: Noterte aksjer og obligasjoner"</span>,</span>
+<span id="cb8-18">    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>,</span>
+<span id="cb8-19">    dataframe<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df,</span>
+<span id="cb8-20">    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Kvartal"</span>,</span>
+<span id="cb8-21">    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Prosent"</span>,</span>
+<span id="cb8-22">)</span>
+<span id="cb8-23">ssb.create(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hc-olje-forsvar"</span>, highchart)</span>
+<span id="cb8-24"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb8-25"></span>
+<span id="cb8-26">Markedsverdien av obligasjoner steg gjennom året og avsluttet 4. kvartal 2025 med en kvartalsvis økning på 1,5 prosent. Med en samlet markedsverdi av verdipapirer registrert i Euronext Securities Oslo på 7 698 milliarder kroner ved utgangen av kvartalet, utgjør obligasjoner et betydelig ledd i verdipapirmarkedet. Beregnet som differansen mellom totalen og noterte aksjer (3 985 milliarder kroner), anslås markedsverdien av obligasjoner til om lag 3 713 milliarder kroner.</span>
+<span id="cb8-27"></span>
+<span id="cb8-28">Veksten i obligasjoner ble i stor grad drevet av utstedere knyttet til olje og forsvar. Store oljeprodusenter økte opptaket av obligasjonsfinansiering i løpet av 2025 for å sikre likviditet og investeringer, og forsvarsrelaterte selskaper gjennomførte flere langvarige emisjoner. Disse sektorene bidro direkte til at renteinntektene fra obligasjoner nådde 140 milliarder kroner i 2025.</span>
+<span id="cb8-29"></span>
+<span id="cb8-30">:::{ #hc-olje-forsvar }</span>
+<span id="cb8-31">:::</span>
+<span id="cb8-32"></span>
+<span id="cb8-33"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"># Nedgang i noterte aksjer hos offentlig forvaltning</span></span>
+<span id="cb8-34"></span>
+<span id="cb8-35"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb8-36">highchart <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ssb.Highchart(</span>
+<span id="cb8-37">    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Markedsverdi av noterte aksjer hos offentlig forvaltning. Årsslutt, milliarder kroner"</span>,</span>
+<span id="cb8-38">    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"column"</span>,</span>
+<span id="cb8-39">    dataframe<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df,</span>
+<span id="cb8-40">    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"År"</span>,</span>
+<span id="cb8-41">    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Milliarder kroner"</span>,</span>
+<span id="cb8-42">)</span>
+<span id="cb8-43">ssb.create(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hc-offentlig-nedgang"</span>, highchart)</span>
+<span id="cb8-44"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb8-45"></span>
+<span id="cb8-46">Offentlig forvaltning var ved kvartalsskiftet nest største eiersektor i børsmarkedet med 1 071 milliarder kroner i noterte aksjer, tilsvarende 27 prosent av den totale markedsverdien på 3 985 milliarder kroner for noterte aksjer. Dette representerer en mindre nedgang fra året før; sammenlignet med utgangen av 2024 var beholdningen omlag 15 milliarder kroner lavere.</span>
+<span id="cb8-47"></span>
+<span id="cb8-48">Nedgangen henger sammen med at offentlig sektor i 2025 realiserte enkelte posisjoner i bank- og industrisektoren, samtidig som deler av avkastningen fra aksjemarkedet ble reinvestert i rentebærende papirer. På sektornivå var olje og finans fortsatt viktige bidragsytere til kurs- og beholdningsutviklingen, men netto salgsaktivitet fra offentlig forvaltning bidro til en samlet reduksjon i deres aksjeeksponering.</span>
+<span id="cb8-49"></span>
+<span id="cb8-50">:::{ #hc-offentlig-nedgang }</span>
+<span id="cb8-51">:::</span>
+<span id="cb8-52"></span>
+<span id="cb8-53"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"># Høye emisjoner for obligasjoner</span></span>
+<span id="cb8-54"></span>
+<span id="cb8-55"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{python}</span></span>
+<span id="cb8-56">highchart <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ssb.Highchart(</span>
+<span id="cb8-57">    title<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Årlige emisjoner av obligasjoner. Milliarder kroner"</span>,</span>
+<span id="cb8-58">    graph_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"column"</span>,</span>
+<span id="cb8-59">    dataframe<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df,</span>
+<span id="cb8-60">    xlabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"År"</span>,</span>
+<span id="cb8-61">    ylabel<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Milliarder kroner"</span>,</span>
+<span id="cb8-62">)</span>
+<span id="cb8-63">ssb.create(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hc-emisjoner"</span>, highchart)</span>
+<span id="cb8-64"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span>
+<span id="cb8-65"></span>
+<span id="cb8-66">Emisjonsaktiviteten i obligasjonsmarkedet var høy i 2025. Nye utstedelser ble ført opp til om lag 520 milliarder kroner i løpet av året, opp fra omkring 480 milliarder kroner i 2024. Den sterke emisjonstakten bidro både til vekst i markedsverdien av obligasjoner og til økte renteutbetalinger.</span>
+<span id="cb8-67"></span>
+<span id="cb8-68">Den samlede renteutbetalingen fra obligasjoner endte på 140 milliarder kroner i 2025, en økning fra 131 milliarder kroner året før. Høyere markedsrente og større volum av nyutstedelser gjorde at rentekostnadene for låntakere økte, samtidig som investorene oppnådde bedre direkteavkastning på obligasjonsporteføljer.</span>
+<span id="cb8-69"></span>
+<span id="cb8-70">:::{ #hc-emisjoner }</span>
+<span id="cb8-71">:::</span>
+<span id="cb8-72"></span></code></pre></div></div>
+</div>
+</div>
+</div>
+<p>Conclusions:</p>
+<ul>
+<li>It needs more context to be able to create a meaningful discussion.</li>
+<li>The LLM is not able to reference specific numbers from the highchart properly.</li>
+</ul>
+<p>Next steps to try:</p>
+<ul>
+<li>Instead of passing in dataframes, pass in custom objects which describes both the data and context. (e.g.&nbsp;<code>DataSet("df", df, "This dataset describes ..., has columns ...., and the results are related to ...")</code>).</li>
+<li>The output article shouldn’t have any data, just references to the input data (e.g.&nbsp;above data would be referenced as <code>"df"</code>).</li>
+<li>Instruct the agent to not put any actual numbers in the text, just placeholders (spans - []).</li>
+<li>Change <code>get_article_from_url</code> to <code>parse_example_from_url</code> which shows both the input data and the output article.</li>
+<li>Try a prompt like: “Example input data:”, “Example output article:”, “Use this as a model to create a new article based on the following new input data:”, “Additional instructions:”.</li>
+<li>Try to drop the sections and have the LLM write the whole article as one string.</li>
+<li>Try with completely different model articles.</li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Pydantic AI</category>
+  <category>Python</category>
+  <guid>https://olavlan.github.io/programming/pydantic/generating-articles/4/</guid>
+  <pubDate>Sun, 01 Mar 2026 17:54:30 GMT</pubDate>
 </item>
 </channel>
 </rss>

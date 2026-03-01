@@ -18,56 +18,34 @@ import ssb_pubmd as ssb
 
 {% endif -%}
 
-{% for block in section.blocks -%}
-
-{% if block.type == "highchart" -%}
+{% for highchart in section.highcharts -%}
 
 ```{python}
-{{block.dataframe}}
-
 highchart = ssb.Highchart(
-    title="{{ block.metadata.title }}",
-    graph_type="{{ block.metadata.graph_type }}",
+    title="{{ highchart.metadata.title }}",
+    graph_type="{{ highchart.metadata.graph_type }}",
     dataframe=df,
-    xlabel="{{ block.metadata.xlabel }}",
-    ylabel="{{ block.metadata.ylabel }}",
+    xlabel="{{ highchart.metadata.xlabel }}",
+    ylabel="{{ highchart.metadata.ylabel }}",
 )
-ssb.create("{{ block.key }}", highchart)
+ssb.create("{{ highchart.id }}", highchart)
 ```
 
-{% elif block.type == "factbox" -%}
+{% endfor -%}
+
+
+{% for factbox in section.factboxes -%}
 
 ```{python}
 factbox = ssb.Factbox(
     title="{{ block.metadata.title }}",
     display_type="{{ block.metadata.display_type }}",
 )
-ssb.create("{{ block.key }}", factbox)
+ssb.create("{{ block.id }}", factbox)
 ```
 
-{% endif -%}
-
 {% endfor -%}
 
-{% for block in section.blocks -%}
-
-{% if block.type == "paragraph" -%}
-
-{{ block.markdown_text }}
-
-{% elif block.type == "highchart" -%}
-
-::: { #{{ block.key }} .ssb }
-:::
-
-{% elif block.type == "factbox" -%}
-
-::: { #{{ block.key }} .ssb }
-{{ block.markdown_text }}
-:::
-
-{% endif -%}
-
-{% endfor -%}
+{{ section.markdown_text }}
 
 {% endfor -%}
