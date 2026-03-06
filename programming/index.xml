@@ -9,8 +9,8 @@
 <link>https://olavlan.github.io/programming/</link>
 <atom:link href="https://olavlan.github.io/programming/index.xml" rel="self" type="application/rss+xml"/>
 <description>My notes about programming</description>
-<generator>quarto-1.8.26</generator>
-<lastBuildDate>Sat, 28 Feb 2026 23:00:00 GMT</lastBuildDate>
+<generator>quarto-1.8.27</generator>
+<lastBuildDate>Sun, 01 Mar 2026 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Generating articles with Pydantic AI (4)</title>
   <link>https://olavlan.github.io/programming/pydantic/generating-articles/4/</link>
@@ -1408,7 +1408,7 @@ font-style: inherit;">```</span></span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/4/</guid>
-  <pubDate>Sat, 28 Feb 2026 23:00:00 GMT</pubDate>
+  <pubDate>Sun, 01 Mar 2026 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (3)</title>
@@ -2643,7 +2643,7 @@ font-style: inherit;"># Konsekvenser og videre arbeid</span></span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/3/</guid>
-  <pubDate>Fri, 27 Feb 2026 23:00:00 GMT</pubDate>
+  <pubDate>Sat, 28 Feb 2026 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (2)</title>
@@ -3924,7 +3924,7 @@ font-style: inherit;">- </span>data/figur3.parquet (utbytte fra noterte aksjer o
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/2/</guid>
-  <pubDate>Thu, 26 Feb 2026 23:00:00 GMT</pubDate>
+  <pubDate>Fri, 27 Feb 2026 00:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Generating articles with Pydantic AI (1)</title>
@@ -4213,7 +4213,7 @@ font-style: inherit;">as</span> f:</span>
   <category>Pydantic AI</category>
   <category>Python</category>
   <guid>https://olavlan.github.io/programming/pydantic/generating-articles/1/</guid>
-  <pubDate>Wed, 25 Feb 2026 23:00:00 GMT</pubDate>
+  <pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
