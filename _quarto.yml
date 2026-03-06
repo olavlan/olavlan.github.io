@@ -6,10 +6,13 @@ website:
   title: "Blog"
   site-url: https://olavlan.github.io/
   description: "My notes about programming"
+  search: 
+    keyboard-shortcut: 
+      - "?"
   navbar:
     background: "#40a02b"
     right:
-      - text: Programming
+      - text: "Programming"
         href: programming/index.qmd
       - text: Books
         href: books/index.qmd
