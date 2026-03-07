@@ -1,7 +1,7 @@
 ---
 title: "Programming notes"
 listing:
-  contents: "**/index.{py,qmd,md}"
+  contents: "**/*.{py,qmd,md}"
   type: table
   fields: [date, title]
   sort: date desc

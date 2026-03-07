@@ -1,21 +1,10 @@
+# %% [markdown]
 # ---
 # title: "Generating articles with Pydantic AI (1)"
 # date: 2026-02-26
-# description: "Trying to learn Pydantic AI."
 # categories: ["Pydantic AI", "Python"]
 # execute:
 #   enabled: false
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.1
-#   kernelspec:
-#     display_name: olavlan-github-io
-#     language: python
-#     name: python3
 # ---
 
 # %% [markdown]
@@ -34,6 +23,7 @@ import ssb_pubmd as ssb
 
 # %% [markdown]
 # 1. Define article model
+
 
 # %%
 class MarkdownBlock(BaseModel):

@@ -1,3 +1,4 @@
+# %% [markdown]
 # ---
 # title: "Generating articles with Pydantic AI (4)"
 # date: 2026-03-01

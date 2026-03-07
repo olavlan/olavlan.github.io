@@ -1,3 +1,4 @@
+# %% [markdown]
 # ---
 # title: Generating articles with Pydantic AI (2)
 # date: 2026-02-27
@@ -6,17 +7,6 @@
 #   - Python
 # execute:
 #   enabled: false
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.1
-#   kernelspec:
-#     display_name: olavlan-github-io
-#     language: python
-#     name: python3
 # ---
 
 # %% [markdown]
@@ -28,9 +18,8 @@
 #
 
 # %%
-from typing import Any
 import jinja2
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from ssb_pubmd import Highchart as HighchartMetadata
@@ -40,6 +29,7 @@ from ssb_pubmd import Factbox as FactboxMetadata
 # %% [markdown]
 # 1. Define improved article model
 #
+
 
 # %%
 class Highchart(BaseModel):
@@ -89,6 +79,7 @@ class Article(BaseModel):
 # %% [markdown]
 # 2. Parse example article (mocked)
 #
+
 
 # %%
 def parse_article_from_url(url: str) -> Article:
@@ -155,6 +146,7 @@ def parse_article_from_url(url: str) -> Article:
 # %% [markdown]
 # 3. Define article request model
 #
+
 
 # %%
 class DataSource(BaseModel):

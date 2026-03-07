@@ -1,20 +1,10 @@
+# %% [markdown]
 # ---
 # title: "Generating articles with Pydantic AI (3)"
 # date: 2026-02-28
 # categories: ["Pydantic AI", "Python"]
 # execute:
 #   enabled: false
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.19.1
-#   kernelspec:
-#     display_name: olavlan.github.io
-#     language: python
-#     name: python3
 # ---
 
 # %% [markdown]
@@ -88,6 +78,7 @@ class Article(BaseModel):
 # %% [markdown]
 # 2. Parse example article (mocked)
 #
+
 
 # %%
 def parse_article_from_url(url: str) -> Article:
@@ -193,7 +184,7 @@ def get_article_from_url(url: str) -> Article:
     return parse_article_from_url(url)
 
 
-prompt = f"""
+prompt = """
 Jeg ønsker en artikkel som følger samme struktur og eksempel som denne: https://www.ssb.no/bank-og-finansmarked/verdipapirmarkeder/statistikk/verdipapirer/artikler/mindre-utbytte-fra-aksjer. Skriv om størrelsen på boliger i Norge. Legg til highcharts som bruker pandas-dataframes som input - skriv eksempelkode som jeg selv kan modifisere.
 """
 result = await agent.run(prompt)
@@ -239,7 +230,7 @@ with open("_output.qmd", "w", encoding="utf-8") as f:
 # %% [markdown]
 # Conclusions:
 #
-# * The LLM still produces author notes and code references in text blocks that are supposed to be user-facing. 
+# * The LLM still produces author notes and code references in text blocks that are supposed to be user-facing.
 # * We could try to make the LLM produce the whole section text in one string, then validating the text against the defined components of the section.
 # * The next goal could be to make the agent take in one article and some new data tables, and then produce a similar style article with those new data tables.
 # * We can eventually expose a Python function that takes in the data frames, example articles, and extra instructions, and creates a new file with both the correct code and the generated article content. We should make sure that it is the actual dataframes that are being passed into the highchart functions.
