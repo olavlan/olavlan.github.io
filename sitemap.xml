@@ -2,18 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://olavlan.github.io/books/index.html</loc>
-    <lastmod>2026-03-07T11:55:09.582Z</lastmod>
+    <lastmod>2026-03-07T12:20:14.023Z</lastmod>
   </url>
   <url>
-    <loc>https://olavlan.github.io/programming/index.html</loc>
-    <lastmod>2026-03-07T11:55:09.582Z</lastmod>
+    <loc>https://olavlan.github.io/programming/pydantic/generating-articles/2/index.html</loc>
+    <lastmod>2026-03-07T12:20:14.025Z</lastmod>
+  </url>
+  <url>
+    <loc>https://olavlan.github.io/programming/pydantic/generating-articles/1/index.html</loc>
+    <lastmod>2026-03-07T12:20:14.024Z</lastmod>
   </url>
   <url>
     <loc>https://olavlan.github.io/index.html</loc>
-    <lastmod>2026-03-07T11:55:09.582Z</lastmod>
+    <lastmod>2026-03-07T12:20:14.023Z</lastmod>
+  </url>
+  <url>
+    <loc>https://olavlan.github.io/programming/index.html</loc>
+    <lastmod>2026-03-07T12:20:14.023Z</lastmod>
+  </url>
+  <url>
+    <loc>https://olavlan.github.io/programming/pydantic/generating-articles/3/index.html</loc>
+    <lastmod>2026-03-07T12:20:14.025Z</lastmod>
   </url>
   <url>
     <loc>https://olavlan.github.io/programming/pydantic/generating-articles/4/index.html</loc>
-    <lastmod>2026-03-07T11:55:09.584Z</lastmod>
+    <lastmod>2026-03-07T12:20:14.025Z</lastmod>
   </url>
 </urlset>
