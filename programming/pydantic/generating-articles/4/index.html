@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-03-01">
 
-<title>Generating articles with Pydantic AI (4) – Blog</title>
+<title>index – Blog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -152,24 +151,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Generating articles with Pydantic AI (4)</h1>
-  <div class="quarto-categories">
-    <div class="quarto-category">Pydantic AI</div>
-    <div class="quarto-category">Python</div>
-  </div>
-  </div>
+<h1 class="title">Separate data processing and article writing</h1>
+</div>
 
 
 
 <div class="quarto-title-meta column-page">
 
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">March 1, 2026</p>
-    </div>
-  </div>
   
     
   </div>
@@ -179,8 +168,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="separate-data-processing-and-article-writing" class="level2">
-<h2 class="anchored" data-anchor-id="separate-data-processing-and-article-writing">Separate data processing and article writing</h2>
 <ul>
 <li>We give the LLM the prepared data, so it only produces natural language</li>
 <li>If we want the LLM to help with writing data processing code, that can be an independent step before producing the article</li>
@@ -188,7 +175,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li>Define interface:</li>
 </ol>
-<div id="9fa6972a" class="cell" data-execution_count="43">
+<div id="dd285d83" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> narwhals.typing <span class="im">import</span> IntoDataFrame</span>
@@ -220,7 +207,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol start="2" type="1">
 <li>Define improved article model</li>
 </ol>
-<div id="c8c6312b" class="cell" data-execution_count="44">
+<div id="821b8d2f" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
@@ -285,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol start="3" type="1">
 <li>Parse example article (mocked)</li>
 </ol>
-<div id="d676b6c8" class="cell" data-execution_count="45">
+<div id="abb9d045" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> narwhals <span class="im">as</span> nw</span>
@@ -312,7 +299,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                    ylabel<span class="op">=</span><span class="st">"Prosent"</span>,</span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                ),</span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                data<span class="op">=</span>nw.read_csv(</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"figur-1-markedsverdi-av.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"data/figur-1-markedsverdi-av.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>                ).to_dict(as_series<span class="op">=</span><span class="va">False</span>),</span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>            ),</span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        ],</span>
@@ -337,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>                    ylabel<span class="op">=</span><span class="st">"Millioner kroner"</span>,</span>
 <span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>                ),</span>
 <span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>                data<span class="op">=</span>nw.read_csv(</span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"figur-2-markedsverdi-av.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"data/figur-2-markedsverdi-av.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
 <span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                ).to_dict(as_series<span class="op">=</span><span class="va">False</span>),</span>
 <span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>            ),</span>
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        ],</span>
@@ -362,7 +349,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                    ylabel<span class="op">=</span><span class="st">"Millioner kroner"</span>,</span>
 <span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                ),</span>
 <span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                data<span class="op">=</span>nw.read_csv(</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"figur-3-utbytte-fra-note.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"data/figur-3-utbytte-fra-note.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
 <span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>                ).to_dict(as_series<span class="op">=</span><span class="va">False</span>),</span>
 <span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>            ),</span>
 <span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>        ],</span>
@@ -382,7 +369,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol start="4" type="1">
 <li>Implement interface</li>
 </ol>
-<div id="1d0d707e" class="cell" data-execution_count="46">
+<div id="090d7895" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic_ai <span class="im">import</span> Agent</span>
@@ -419,28 +406,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol start="5" type="1">
 <li>Try interface</li>
 </ol>
-<div id="ba3d1a14" class="cell" data-execution_count="47">
+<div id="358306db" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="op">=</span> nw.read_csv(<span class="st">"figur-1-markedsverdi-av-new.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> nw.read_csv(<span class="st">"figur-2-markedsverdi-av-new.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df3 <span class="op">=</span> nw.read_csv(<span class="st">"figur-3-plydende-verdi-a.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>article <span class="op">=</span> <span class="cf">await</span> generate_article(</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    prompt<span class="op">=</span><span class="st">"Artikkelen skal ha språklig stil og struktur lik følgende artikkel: https://www.ssb.no/bank-og-finansmarked/verdipapirmarkeder/statistikk/verdipapirer/artikler/mindre-utbytte-fra-aksjer. Tittelen skal være 'Oppgang for obligasjoner' og skal ha tre seksjoner: 'Olje og forsvar', 'Nedgang i noterte aksjer hos offentlig forvaltning' og 'Høye emisjoner for obligasjoner'. Referér til konkrete tall i teksten. Sett inn ett highchart per seksjon."</span>,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    df1<span class="op">=</span>df1,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    df2<span class="op">=</span>df2,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    df3<span class="op">=</span>df3,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>article.model_dump()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="op">=</span> nw.read_csv(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data/figur-1-markedsverdi-av-new.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> nw.read_csv(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data/figur-2-markedsverdi-av-new.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>df3 <span class="op">=</span> nw.read_csv(<span class="st">"data/figur-3-plydende-verdi-a.csv"</span>, backend<span class="op">=</span><span class="st">"polars"</span>, separator<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>article <span class="op">=</span> <span class="cf">await</span> generate_article(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    prompt<span class="op">=</span><span class="st">"Artikkelen skal ha språklig stil og struktur lik følgende artikkel: https://www.ssb.no/bank-og-finansmarked/verdipapirmarkeder/statistikk/verdipapirer/artikler/mindre-utbytte-fra-aksjer. Tittelen skal være 'Oppgang for obligasjoner' og skal ha tre seksjoner: 'Olje og forsvar', 'Nedgang i noterte aksjer hos offentlig forvaltning' og 'Høye emisjoner for obligasjoner'. Referér til konkrete tall i teksten. Sett inn ett highchart per seksjon."</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    df1<span class="op">=</span>df1,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    df2<span class="op">=</span>df2,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    df3<span class="op">=</span>df3,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>article.model_dump()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <ol start="5" type="1">
 <li>Insert article output into new markdown template</li>
 </ol>
-<div id="ac31d3fb" class="cell" data-execution_count="48">
+<div id="cef5c0fd" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jinja2</span>
@@ -475,48 +466,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">          email: ---.ssb@no</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">    ingress: "{{&nbsp;article.ingress }}"</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ssb_pubmd <span class="im">as</span> ssb</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>{% for section in article.sections -%}</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>{% if section.title -%}</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>::: {#4c679ece .cell}</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ssb_pubmd <span class="im">as</span> ssb</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu"># {{ section.title  }}</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>{% endif -%}</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>{% for highchart in section.highcharts -%}</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.title </span><span class="sc">}}</span><span class="st">"</span>,</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.graph_type </span><span class="sc">}}</span><span class="st">"</span>,</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.xlabel </span><span class="sc">}}</span><span class="st">"</span>,</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.ylabel </span><span class="sc">}}</span><span class="st">"</span>,</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.id </span><span class="sc">}}</span><span class="st">"</span>, highchart)</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>{% endfor -%}</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>{% for factbox in section.factboxes -%}</span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>factbox <span class="op">=</span> ssb.Factbox(</span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> block.metadata.title </span><span class="sc">}}</span><span class="st">"</span>,</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    display_type<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st">&nbsp;block.metadata.display_type </span><span class="sc">}}</span><span class="st">"</span>,</span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"</span><span class="sc">{{</span><span class="st">&nbsp;block.id </span><span class="sc">}}</span><span class="st">"</span>, factbox)</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>{% for section in article.sections -%}</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>{% if section.title -%}</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="fu"># {{ section.title  }}</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>{% endif -%}</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>{% for highchart in section.highcharts -%}</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>::: {#0930b08b .cell}</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.title </span><span class="sc">}}</span><span class="st">"</span>,</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.graph_type </span><span class="sc">}}</span><span class="st">"</span>,</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.xlabel </span><span class="sc">}}</span><span class="st">"</span>,</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.metadata.ylabel </span><span class="sc">}}</span><span class="st">"</span>,</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"</span><span class="sc">{{</span><span class="st"> highchart.id </span><span class="sc">}}</span><span class="st">"</span>, highchart)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>{% endfor -%}</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>{% for factbox in section.factboxes -%}</span>
 <span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>{% endfor -%}</span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>{{ section.markdown_text }}</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>{% endfor -%}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>::: {#2e12b891 .cell}</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>factbox <span class="op">=</span> ssb.Factbox(</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> block.metadata.title </span><span class="sc">}}</span><span class="st">"</span>,</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    display_type<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st">&nbsp;block.metadata.display_type </span><span class="sc">}}</span><span class="st">"</span>,</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"</span><span class="sc">{{</span><span class="st">&nbsp;block.id </span><span class="sc">}}</span><span class="st">"</span>, factbox)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>{% endfor -%}</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>{{ section.markdown_text }}</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>{% endfor -%}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -541,69 +543,83 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">          email: ---.ssb@no</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">    ingress: "Markedsverdien og etterspørselen etter obligasjoner økte gjennom 2025, drevet av sterk emisjonsaktivitet og høyere renteinntekter. Samtidig falt beholdningen av noterte aksjer hos offentlig forvaltning noe, mens olje- og forsvarsrelaterte utstedere bidro til veksten i obligasjonsmarkedet."</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ssb_pubmd <span class="im">as</span> ssb</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu"># Olje og forsvar</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Kvartalsvis prosentvis endring i markedsverdi: Noterte aksjer og obligasjoner"</span>,</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"line"</span>,</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Kvartal"</span>,</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Prosent"</span>,</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"hc-olje-forsvar"</span>, highchart)</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>Markedsverdien av obligasjoner steg gjennom året og avsluttet 4. kvartal 2025 med en kvartalsvis økning på 1,5 prosent. Med en samlet markedsverdi av verdipapirer registrert i Euronext Securities Oslo på 7 698 milliarder kroner ved utgangen av kvartalet, utgjør obligasjoner et betydelig ledd i verdipapirmarkedet. Beregnet som differansen mellom totalen og noterte aksjer (3 985 milliarder kroner), anslås markedsverdien av obligasjoner til om lag 3 713 milliarder kroner.</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>Veksten i obligasjoner ble i stor grad drevet av utstedere knyttet til olje og forsvar. Store oljeprodusenter økte opptaket av obligasjonsfinansiering i løpet av 2025 for å sikre likviditet og investeringer, og forsvarsrelaterte selskaper gjennomførte flere langvarige emisjoner. Disse sektorene bidro direkte til at renteinntektene fra obligasjoner nådde 140 milliarder kroner i 2025.</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>:::{ #hc-olje-forsvar }</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>::: {#1e96ba38 .cell}</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ssb_pubmd <span class="im">as</span> ssb</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu"># Olje og forsvar</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>::: {#0faea996 .cell}</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Kvartalsvis prosentvis endring i markedsverdi: Noterte aksjer og obligasjoner"</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"line"</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"Kvartal"</span>,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Prosent"</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"hc-olje-forsvar"</span>, highchart)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="fu"># Nedgang i noterte aksjer hos offentlig forvaltning</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Markedsverdi av noterte aksjer hos offentlig forvaltning. Årsslutt, milliarder kroner"</span>,</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"column"</span>,</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"År"</span>,</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Milliarder kroner"</span>,</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"hc-offentlig-nedgang"</span>, highchart)</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>Offentlig forvaltning var ved kvartalsskiftet nest største eiersektor i børsmarkedet med 1 071 milliarder kroner i noterte aksjer, tilsvarende 27 prosent av den totale markedsverdien på 3 985 milliarder kroner for noterte aksjer. Dette representerer en mindre nedgang fra året før; sammenlignet med utgangen av 2024 var beholdningen omlag 15 milliarder kroner lavere.</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>Nedgangen henger sammen med at offentlig sektor i 2025 realiserte enkelte posisjoner i bank- og industrisektoren, samtidig som deler av avkastningen fra aksjemarkedet ble reinvestert i rentebærende papirer. På sektornivå var olje og finans fortsatt viktige bidragsytere til kurs- og beholdningsutviklingen, men netto salgsaktivitet fra offentlig forvaltning bidro til en samlet reduksjon i deres aksjeeksponering.</span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>:::{ #hc-offentlig-nedgang }</span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="fu"># Høye emisjoner for obligasjoner</span></span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Årlige emisjoner av obligasjoner. Milliarder kroner"</span>,</span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"column"</span>,</span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"År"</span>,</span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Milliarder kroner"</span>,</span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"hc-emisjoner"</span>, highchart)</span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>Markedsverdien av obligasjoner steg gjennom året og avsluttet 4. kvartal 2025 med en kvartalsvis økning på 1,5 prosent. Med en samlet markedsverdi av verdipapirer registrert i Euronext Securities Oslo på 7 698 milliarder kroner ved utgangen av kvartalet, utgjør obligasjoner et betydelig ledd i verdipapirmarkedet. Beregnet som differansen mellom totalen og noterte aksjer (3 985 milliarder kroner), anslås markedsverdien av obligasjoner til om lag 3 713 milliarder kroner.</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>Veksten i obligasjoner ble i stor grad drevet av utstedere knyttet til olje og forsvar. Store oljeprodusenter økte opptaket av obligasjonsfinansiering i løpet av 2025 for å sikre likviditet og investeringer, og forsvarsrelaterte selskaper gjennomførte flere langvarige emisjoner. Disse sektorene bidro direkte til at renteinntektene fra obligasjoner nådde 140 milliarder kroner i 2025.</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>:::{ #hc-olje-forsvar }</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="fu"># Nedgang i noterte aksjer hos offentlig forvaltning</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>::: {#0911e7e4 .cell}</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Markedsverdi av noterte aksjer hos offentlig forvaltning. Årsslutt, milliarder kroner"</span>,</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"column"</span>,</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"År"</span>,</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Milliarder kroner"</span>,</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"hc-offentlig-nedgang"</span>, highchart)</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>Offentlig forvaltning var ved kvartalsskiftet nest største eiersektor i børsmarkedet med 1 071 milliarder kroner i noterte aksjer, tilsvarende 27 prosent av den totale markedsverdien på 3 985 milliarder kroner for noterte aksjer. Dette representerer en mindre nedgang fra året før; sammenlignet med utgangen av 2024 var beholdningen omlag 15 milliarder kroner lavere.</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>Nedgangen henger sammen med at offentlig sektor i 2025 realiserte enkelte posisjoner i bank- og industrisektoren, samtidig som deler av avkastningen fra aksjemarkedet ble reinvestert i rentebærende papirer. På sektornivå var olje og finans fortsatt viktige bidragsytere til kurs- og beholdningsutviklingen, men netto salgsaktivitet fra offentlig forvaltning bidro til en samlet reduksjon i deres aksjeeksponering.</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>:::{ #hc-offentlig-nedgang }</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="fu"># Høye emisjoner for obligasjoner</span></span>
 <span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>Emisjonsaktiviteten i obligasjonsmarkedet var høy i 2025. Nye utstedelser ble ført opp til om lag 520 milliarder kroner i løpet av året, opp fra omkring 480 milliarder kroner i 2024. Den sterke emisjonstakten bidro både til vekst i markedsverdien av obligasjoner og til økte renteutbetalinger.</span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>Den samlede renteutbetalingen fra obligasjoner endte på 140 milliarder kroner i 2025, en økning fra 131 milliarder kroner året før. Høyere markedsrente og større volum av nyutstedelser gjorde at rentekostnadene for låntakere økte, samtidig som investorene oppnådde bedre direkteavkastning på obligasjonsporteføljer.</span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>:::{ #hc-emisjoner }</span>
-<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>::: {#5f8eab41 .cell}</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="in">``` {.python .cell-code}</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>highchart <span class="op">=</span> ssb.Highchart(</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Årlige emisjoner av obligasjoner. Milliarder kroner"</span>,</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>    graph_type<span class="op">=</span><span class="st">"column"</span>,</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>    dataframe<span class="op">=</span>df,</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>    xlabel<span class="op">=</span><span class="st">"År"</span>,</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>    ylabel<span class="op">=</span><span class="st">"Milliarder kroner"</span>,</span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>ssb.create(<span class="st">"hc-emisjoner"</span>, highchart)</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>Emisjonsaktiviteten i obligasjonsmarkedet var høy i 2025. Nye utstedelser ble ført opp til om lag 520 milliarder kroner i løpet av året, opp fra omkring 480 milliarder kroner i 2024. Den sterke emisjonstakten bidro både til vekst i markedsverdien av obligasjoner og til økte renteutbetalinger.</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>Den samlede renteutbetalingen fra obligasjoner endte på 140 milliarder kroner i 2025, en økning fra 131 milliarder kroner året før. Høyere markedsrente og større volum av nyutstedelser gjorde at rentekostnadene for låntakere økte, samtidig som investorene oppnådde bedre direkteavkastning på obligasjonsporteføljer.</span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>:::{ #hc-emisjoner }</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -624,7 +640,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
