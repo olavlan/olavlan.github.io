@@ -20,9 +20,7 @@ website:
         href: https://github.com/olavlan/olavlan.github.io
 
 execute: 
-  echo: true
-  output: false
-  freeze: true
+  enabled: false
 
 code-fold: true
 code-overflow: wrap

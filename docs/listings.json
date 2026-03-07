@@ -1,0 +1,12 @@
+[
+  {
+    "listing": "/books/index.html",
+    "items": []
+  },
+  {
+    "listing": "/programming/index.html",
+    "items": [
+      "/programming/pydantic/generating-articles/4/index.html"
+    ]
+  }
+]
